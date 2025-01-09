@@ -293,7 +293,7 @@ pub async fn avito_crawler_handler() -> WebDriverResult<()> {
 		}
 	};
 
-	println!("Start {}", utc.format("%d-%m-%Y_%H:%M:%S").clone());
+	println!("Start {}", utc.format("%d-%m-%Y_%H:%M:%S"));
 	println!("ads_count {}", ads_count.clone());
 
 	let mut position;
