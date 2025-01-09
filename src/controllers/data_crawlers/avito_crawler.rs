@@ -334,7 +334,7 @@ pub async fn avito_crawler_handler() -> WebDriverResult<()> {
 			// проверяем есть ли рекламное объявление
 			let ads_banner_exists = match check_if_block_exists(driver.clone(),
 				"//div[contains(@class, \"items-banner\")]".to_string(),
-				"body/div[1]/div/buyer-location/div/div/div[2]/div/div[2]/div[3]/div[3]/div[4]/div[2]/div[1]".to_string()
+				"//body/div[1]/div/buyer-location/div/div/div[2]/div/div[2]/div[3]/div[3]/div[4]/div[2]/div[1]".to_string()
 			).await {
 				Ok(elem) => elem,
 				Err(e) => {
@@ -416,8 +416,8 @@ pub async fn avito_crawler_handler() -> WebDriverResult<()> {
 
 			let seller_name_arr = match find_elements(
 				driver.clone(),
-				"//div[contains(@class, \"style-seller-info-name\")]/a".to_string(),
-				"//body/div[1]/div/div[3]/div[1]/div/div[2]/div[3]/div/div[2]/div[1]/div/div/div[3]/div[2]/div/div/div/div[1]/div[1]/div[1]/div[1]/div[1]/a".to_string(),
+				"//div[contains(@class, \"style-seller-info-name\")]//a".to_string(),
+				"//body/div[1]/div/div[3]/div[1]/div/div[2]/div[3]/div/div[2]/div[1]/div/div/div[3]/div[2]/div/div/div/div[1]/div[1]/div[1]/div[1]/div[1]//a".to_string(),
 			)
 			.await
 			{
@@ -493,20 +493,53 @@ pub async fn avito_crawler_handler() -> WebDriverResult<()> {
 			};
 
 			// когда зареган
-			let register_date_arr = match find_elements(
-				driver.clone(),
-				"//div[contains(@class, \"style-seller-info-value\")][last()]/div[last()]".to_string(),
-				"//body/div[1]/div/div[3]/div[1]/div/div[2]/div[3]/div/div[2]/div[1]/div/div/div[3]/div[2]/div/div/div/div[1]/div[1]/div[1]/div[3]/div".to_string(),
-			)
-			.await
-			{
-				Ok(res) => res,
+
+			// проверяем есть ли рекламное объявление
+			let seller_info_redesign = match check_if_block_exists(driver.clone(),
+				"//div[contains(@class, \"style-sellerInfoColRedesign\")]".to_string(),
+				"//body/div[1]/div/div[3]/div[1]/div/div[2]/div[3]/div/div[2]/div/div/div/div[3]/div[2]/div/div/div/div[1]/div/div[1]".to_string()
+			).await {
+				Ok(elem) => elem,
 				Err(e) => {
-					println!("error while searching register_date block: {}", e);
+					println!("error while searching ads_banner_arr block: {}", e);
 					driver.clone().quit().await?;
-					Vec::new()
+					false
 				}
 			};
+
+			let register_date_arr;
+
+			if !seller_info_redesign {
+				register_date_arr = match find_elements(
+					driver.clone(),
+					"//div[contains(@class, \"style-seller-info-value\")][last()]/div[last()]".to_string(),
+					"//body/div[1]/div/div[3]/div[1]/div/div[2]/div[3]/div/div[2]/div[1]/div/div/div[3]/div[2]/div/div/div/div[1]/div[1]/div[1]/div[3]/div".to_string(),
+				)
+				.await
+				{
+					Ok(res) => res,
+					Err(e) => {
+						println!("error while searching register_date block: {}", e);
+						driver.clone().quit().await?;
+						Vec::new()
+					}
+				};
+			} else {
+				register_date_arr = match find_elements(
+					driver.clone(),
+					"//div[contains(@class, \"style-sellerInfoColRedesign\")]/p".to_string(),
+					"//body/div[1]/div/div[3]/div[1]/div/div[2]/div[3]/div/div[2]/div/div/div/div[3]/div[2]/div/div/div/div[1]/div/div[1]/p".to_string(),
+				)
+				.await
+				{
+					Ok(res) => res,
+					Err(e) => {
+						println!("error while searching register_date block: {}", e);
+						driver.clone().quit().await?;
+						Vec::new()
+					}
+				};
+			}
 
 			let register_date_text = match register_date_arr.get(0) {
 				Some(x) => x.text().await?,
@@ -579,8 +612,8 @@ pub async fn avito_crawler_handler() -> WebDriverResult<()> {
 			// Адрес
 			let address_arr = match find_elements(
 				driver.clone(),
-				"//div[contains(@class, \"style-item-address__string\")]".to_string(),
-				"//body/div[1]/div/div[3]/div[1]/div/div[2]/div[3]/div/div[1]/div[2]/div[1]/div[3]/div/div[1]/div[1]/div/span".to_string(),
+				"//span[contains(@class, \"style-item-address__string\")]".to_string(),
+				"//body/div[1]/div/div[3]/div[1]/div/div[2]/div[3]/div/div[1]/div[1]/div[3]/div/div/div[1]/div[1]/div/p[1]/span".to_string(),
 			)
 			.await
 			{
@@ -597,69 +630,167 @@ pub async fn avito_crawler_handler() -> WebDriverResult<()> {
 				None => "".to_string(),
 			};
 
-			// Дата
-			let date_arr = match find_elements(
-				driver.clone(),
-				"//div[contains(@class, \"style-item-footer\")]/article/p/span[2]".to_string(),
-				"//body/div[1]/div/div[3]/div[1]/div/div[2]/div[3]/div/div[1]/div[2]/div[4]/div/article/p/span[2]".to_string(),
-			)
-			.await
-			{
-				Ok(res) => res,
+
+
+			let footer_article = match check_if_block_exists(driver.clone(),
+				"//article[contains(@class, \"style-item-footer-text\")]".to_string(),
+				"//body/div[1]/div/div[3]/div[1]/div/div[2]/div[3]/div/div[1]/div[1]/div[5]/div/div/div[1]/article".to_string()
+			).await {
+				Ok(elem) => elem,
 				Err(e) => {
-					println!("error while searching date block: {}", e);
+					println!("error while searching ads_banner_arr block: {}", e);
 					driver.clone().quit().await?;
-					Vec::new()
+					false
 				}
 			};
 
-			let date = match date_arr.get(0) {
-				Some(x) => x.text().await?.replace("На Авито ", "").replace("· ", ""),
-				None => "".to_string(),
-			};
+			let date;
+			let views;
+			let views_today;
 
-			// Просмотров
-			let views_arr = match find_elements(
-				driver.clone(),
-				"//div[contains(@class, \"style-item-footer\")]/article/p/span[3]".to_string(),
-				"//body/div[1]/div/div[3]/div[1]/div/div[2]/div[3]/div/div[1]/div[2]/div[4]/div/article/p/span[3]".to_string(),
-			)
-			.await
-			{
-				Ok(res) => res,
-				Err(e) => {
-					println!("error while searching views block: {}", e);
-					driver.clone().quit().await?;
-					Vec::new()
-				}
-			};
+			if !footer_article {
+				// Дата
+				let date_arr = match find_elements(
+					driver.clone(),
+					"//div[contains(@class, \"style-item-footer-text\")]/article/p/span[2]".to_string(),
+					"//body/div[1]/div/div[3]/div[1]/div/div[2]/div[3]/div/div[1]/div[2]/div[4]/div/article/p/span[2]".to_string(),
+				)
+				.await
+				{
+					Ok(res) => res,
+					Err(e) => {
+						println!("error while searching date block: {}", e);
+						driver.clone().quit().await?;
+						Vec::new()
+					}
+				};
 
-			let views_full = match views_arr.get(0) {
-				Some(x) => x
-					.text()
-					.await?
-					.replace("просмотра", "")
-					.replace("просмотров", "")
-					.replace("просмотр", "")
-					.replace("· ", "")
-					.replace("  ", ""),
-				None => "".to_string(),
-			};
+				date = match date_arr.get(0) {
+					Some(x) => x.text().await?.replace("На Авито ", "").replace("· ", ""),
+					None => "".to_string(),
+				};
 
-			let views_str = views_full.split("+").collect::<Vec<&str>>();
-			let views = match views_str.get(0) {
-				Some(x) => x.replace("(", "").replace("  ", ""),
-				None => "".to_string(),
-			};
+				// Просмотров
+				let views_arr = match find_elements(
+					driver.clone(),
+					"//div[contains(@class, \"style-item-footer-text\")]/article/p/span[3]".to_string(),
+					"//body/div[1]/div/div[3]/div[1]/div/div[2]/div[3]/div/div[1]/div[2]/div[4]/div/article/p/span[3]".to_string(),
+				)
+				.await
+				{
+					Ok(res) => res,
+					Err(e) => {
+						println!("error while searching views block: {}", e);
+						driver.clone().quit().await?;
+						Vec::new()
+					}
+				};
 
-			let views_today = match views_str.get(1) {
-				Some(x) => x
-					.replace(")", "")
-					.replace("+", "")
-					.replace("сегодня", "")
-					.replace(" ", ""),
-				None => "".to_string(),
-			};
+				let views_full = match views_arr.get(0) {
+					Some(x) => x
+						.text()
+						.await?
+						.replace("просмотра", "")
+						.replace("просмотров", "")
+						.replace("просмотр", "")
+						.replace("· ", "")
+						.replace("  ", ""),
+					None => "".to_string(),
+				};
+
+				let views_str = views_full.split("+").collect::<Vec<&str>>();
+				views = match views_str.get(0) {
+					Some(x) => x.replace("(", "").replace("  ", ""),
+					None => "".to_string(),
+				};
+
+				views_today = match views_str.get(1) {
+					Some(x) => x
+						.replace(")", "")
+						.replace("+", "")
+						.replace("сегодня", "")
+						.replace(" ", ""),
+					None => "".to_string(),
+				};
+
+			} else {
+				// Дата
+				let date_arr = match find_elements(
+					driver.clone(),
+					"//article[contains(@class, \"style-item-footer-text\")]/p/span[2]".to_string(),
+					"//body/div[1]/div/div[3]/div[1]/div/div[2]/div[3]/div/div[1]/div[1]/div[5]/div/div/div[1]/article/p/span[2]".to_string(),
+				)
+				.await
+				{
+					Ok(res) => res,
+					Err(e) => {
+						println!("error while searching date block: {}", e);
+						driver.clone().quit().await?;
+						Vec::new()
+					}
+				};
+
+				date = match date_arr.get(0) {
+					Some(x) => x.text().await?.replace("На Авито ", "").replace("· ", ""),
+					None => "".to_string(),
+				};
+
+				// Просмотров
+				let views_arr = match find_elements(
+					driver.clone(),
+					"//article[contains(@class, \"style-item-footer-text\")]/p/span[3]/span[1]".to_string(),
+					"//body/div[1]/div/div[3]/div[1]/div/div[2]/div[3]/div/div[1]/div[1]/div[5]/div/div/div[1]/article/p/span[3]/span[1]".to_string(),
+				)
+				.await
+				{
+					Ok(res) => res,
+					Err(e) => {
+						println!("error while searching views block: {}", e);
+						driver.clone().quit().await?;
+						Vec::new()
+					}
+				};
+
+				views = match views_arr.get(0) {
+					Some(x) => x
+						.text()
+						.await?
+						.replace("просмотра", "")
+						.replace("просмотров", "")
+						.replace("просмотр", "")
+						.replace("· ", "")
+						.replace("  ", ""),
+					None => "".to_string(),
+				};
+
+				let views_today_arr = match find_elements(
+					driver.clone(),
+					"//article[contains(@class, \"style-item-footer-text\")]/p/span[3]/span[2]".to_string(),
+					"//body/div[1]/div/div[3]/div[1]/div/div[2]/div[3]/div/div[1]/div[1]/div[5]/div/div/div[1]/article/p/span[3]/span[2]".to_string(),
+				)
+				.await
+				{
+					Ok(res) => res,
+					Err(e) => {
+						println!("error while searching views block: {}", e);
+						driver.clone().quit().await?;
+						Vec::new()
+					}
+				};
+
+				views_today = match views_today_arr.get(0) {
+					Some(x) => x
+						.text()
+						.await?
+						.replace("(", "")
+						.replace(")", "")
+						.replace("+", "")
+						.replace("сегодня", "")
+						.replace(" ", ""),
+					None => "".to_string(),
+				};
+
+			}
 
 			// === RESULT ===
 
@@ -668,6 +799,14 @@ pub async fn avito_crawler_handler() -> WebDriverResult<()> {
 			sleep(Duration::from_secs(2)).await;
 
 			println!("{} из {} - {}", &position, &ads_count.clone(), &id);
+			dbg!(&seller_id);
+			dbg!(&seller_name);
+			dbg!(&register_date);
+			dbg!(&seller_ads_count);
+			dbg!(&address);
+			dbg!(&date);
+			dbg!(&views);
+			dbg!(&views_today);
 
 			wtr.write_record(&[
 				position.to_string().as_str(),
