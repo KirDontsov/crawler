@@ -15,7 +15,7 @@ pub async fn avito_crawler_handler() -> WebDriverResult<()> {
 
 	let utc: DateTime<Utc> = Utc::now() + chrono::Duration::try_hours(3).expect("hours err");
 
-	let mut wtr = Writer::from_path(format!("avito_{}.csv", utc.format("%d-%m-%Y_%H:%M:%S")))
+	let mut wtr = Writer::from_path(format!("./output/avito_{}.csv", utc.format("%d-%m-%Y_%H:%M:%S")))
 		.expect("no file");
 
 	wtr.write_record(&[
@@ -663,6 +663,7 @@ pub async fn avito_crawler_handler() -> WebDriverResult<()> {
 			driver.switch_to_window(handle.clone()).await?;
 			sleep(Duration::from_secs(2)).await;
 
+			println!("{} из {}", &position, &ads_count.clone());
 			println!("id {}", &id);
 
 			wtr.write_record(&[
