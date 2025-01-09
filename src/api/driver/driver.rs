@@ -1,9 +1,12 @@
 use thirtyfour::{prelude::*, PageLoadStrategy};
+use std::env;
 
 pub trait Driver {}
 
 impl dyn Driver {
 	pub async fn get_driver() -> Result<WebDriver, WebDriverError> {
+		let headless = env::var("HEADLESS_CHROME").expect("HEADLESS_CHROME not set");
+
 		let mut caps = DesiredCapabilities::chrome();
 
 		// без загрузки изображений
@@ -18,8 +21,12 @@ impl dyn Driver {
 		// 		}
 		// 	}),
 		// )?;
+		//
 
-		let _ = caps.set_headless();
+		if headless.parse().unwrap() {
+			let _ = caps.set_headless();
+		}
+
 		let _ = caps.set_page_load_strategy(PageLoadStrategy::Eager)?;
 		let _ = caps.add_arg("enable-automation");
 		let _ = caps.add_arg("--no-sandbox");

@@ -285,7 +285,10 @@ pub async fn avito_crawler_handler() -> WebDriverResult<()> {
 	)
 	.await
 	{
-		Ok(elem) => elem.replace("&nbsp;", "").parse::<f32>().unwrap_or(0.0),
+		Ok(elem) => {
+			dbg!(&elem);
+			elem.replace("&nbsp;", "").replace(" ", "").parse::<f32>().unwrap_or(0.0)
+		},
 		Err(e) => {
 			println!("error while searching ads_count block: {}", e);
 			driver.clone().quit().await?;
