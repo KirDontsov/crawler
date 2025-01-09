@@ -72,7 +72,6 @@ pub async fn avito_crawler_handler() -> WebDriverResult<()> {
 		"Название",
 		"Ссылка",
 		"Цена",
-		"Продвижение",
 		"Категории",
 		"Поиск (запрос)",
 		"id Продавца",
@@ -87,6 +86,7 @@ pub async fn avito_crawler_handler() -> WebDriverResult<()> {
 		"Дата",
 		"Просмотров",
 		"Просмотров сегодня",
+		"Продвижение",
 	])
 	.expect("write record err");
 
@@ -806,7 +806,6 @@ pub async fn avito_crawler_handler() -> WebDriverResult<()> {
 				title.replace("\"", "").as_str(),
 				href.as_str(),
 				price.as_str(),
-				paid.to_string().as_str(),
 				categories_str.as_str(),
 				search_query,
 				seller_id,
@@ -821,6 +820,7 @@ pub async fn avito_crawler_handler() -> WebDriverResult<()> {
 				date.as_str(),
 				views.as_str(),
 				views_today.as_str(),
+				paid.to_string().as_str(),
 			])
 			.expect("write record err");
 		}
