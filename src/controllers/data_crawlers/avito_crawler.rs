@@ -285,7 +285,7 @@ pub async fn avito_crawler_handler() -> WebDriverResult<()> {
 	)
 	.await
 	{
-		Ok(elem) => elem.parse::<f32>().unwrap_or(0.0),
+		Ok(elem) => elem.replace("&nbsp;", "").parse::<f32>().unwrap_or(0.0),
 		Err(e) => {
 			println!("error while searching ads_count block: {}", e);
 			driver.clone().quit().await?;
@@ -293,6 +293,7 @@ pub async fn avito_crawler_handler() -> WebDriverResult<()> {
 		}
 	};
 
+	println!("Start {}", utc.format("%d-%m-%Y_%H:%M:%S").clone());
 	println!("ads_count {}", ads_count.clone());
 
 	let mut position;
@@ -663,8 +664,7 @@ pub async fn avito_crawler_handler() -> WebDriverResult<()> {
 			driver.switch_to_window(handle.clone()).await?;
 			sleep(Duration::from_secs(2)).await;
 
-			println!("{} из {}", &position, &ads_count.clone());
-			println!("id {}", &id);
+			println!("{} из {} - {}", &position, &ads_count.clone(), &id);
 
 			wtr.write_record(&[
 				position.to_string().as_str(),
