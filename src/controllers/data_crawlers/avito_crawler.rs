@@ -799,14 +799,6 @@ pub async fn avito_crawler_handler() -> WebDriverResult<()> {
 			sleep(Duration::from_secs(2)).await;
 
 			println!("{} из {} - {}", &position, &ads_count.clone(), &id);
-			dbg!(&seller_id);
-			dbg!(&seller_name);
-			dbg!(&register_date);
-			dbg!(&seller_ads_count);
-			dbg!(&address);
-			dbg!(&date);
-			dbg!(&views);
-			dbg!(&views_today);
 
 			wtr.write_record(&[
 				position.to_string().as_str(),
@@ -831,15 +823,6 @@ pub async fn avito_crawler_handler() -> WebDriverResult<()> {
 				views_today.as_str(),
 			])
 			.expect("write record err");
-
-			// reviews.push(SaveReview {
-			// 	firm_id: firm.firm_id.clone(),
-			// 	two_gis_firm_id: firm.two_gis_firm_id.clone().expect(),
-			// 	author: author.clone(),
-			// 	date: date.clone(),
-			// 	text: text.replace("\n", " "),
-			// 	rating,
-			// });
 		}
 
 		let main_arr = match find_elements(
@@ -885,25 +868,6 @@ pub async fn avito_crawler_handler() -> WebDriverResult<()> {
 
 		button.click().await?;
 		sleep(Duration::from_secs(5)).await;
-
-		// запись в бд
-		// for review in reviews {
-		// 	let _ = sqlx::query_as!(
-		// 		Review,
-		// 		"INSERT INTO reviews (firm_id, two_gis_firm_id, author, date, text, rating, parsed) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *",
-		// 		review.firm_id,
-		// 		review.two_gis_firm_id,
-		// 		review.author,
-		// 		review.date,
-		// 		review.text,
-		// 		review.rating,
-		// 		true
-		// 	)
-		// 	.fetch_one(&data.db)
-		// 	.await;
-
-		// 	dbg!(&review);
-		// }
 
 		println!("{}", "======");
 	}
