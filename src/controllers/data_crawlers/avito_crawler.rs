@@ -558,8 +558,8 @@ pub async fn avito_crawler_handler() -> WebDriverResult<()> {
 			// кол-во объявлений продавца
 			let seller_ads_count_arr = match find_elements(
 				driver.clone(),
-				"//div[contains(@class, \"style-seller-info-favorite-seller-buttons\")]/div/div/div[1]/a/span".to_string(),
-				"//body/div[1]/div/div[3]/div[1]/div/div[2]/div[3]/div/div[2]/div[1]/div/div/div[3]/div[2]/div/div/div/div[2]/div/div/div/div/a/span".to_string(),
+				"//div[contains(@class, \"style-seller-info-favorite-seller-buttons\")]/div/div/div[1]/a".to_string(),
+				"//body/div[1]/div/div[3]/div[1]/div/div[2]/div[3]/div/div[2]/div[1]/div/div/div[3]/div[2]/div/div/div/div[2]/div/div/div/div/a".to_string(),
 			)
 			.await
 			{
