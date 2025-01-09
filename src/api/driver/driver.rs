@@ -19,7 +19,7 @@ impl dyn Driver {
 		// 	}),
 		// )?;
 
-		// let _ = caps.set_headless();
+		let _ = caps.set_headless();
 		let _ = caps.set_page_load_strategy(PageLoadStrategy::Eager)?;
 		let _ = caps.add_arg("enable-automation");
 		let _ = caps.add_arg("--no-sandbox");
