@@ -334,7 +334,7 @@ pub async fn avito_crawler_handler() -> WebDriverResult<()> {
 			// проверяем есть ли рекламное объявление
 			let ads_banner_exists = match check_if_block_exists(driver.clone(),
 				"//div[contains(@class, \"items-banner\")]".to_string(),
-				"//body/div[1]/div/buyer-location/div/div/div[2]/div/div[2]/div[3]/div[3]/div[4]/div[2]/div[1]".to_string()
+				"".to_string(),
 			).await {
 				Ok(elem) => elem,
 				Err(e) => {
@@ -979,12 +979,23 @@ pub async fn check_if_block_exists(
 	xpath: String,
 	xpath2: String,
 ) -> Result<bool, WebDriverError> {
-	let exists = driver
-		.query(By::XPath(&xpath))
-		.or(By::XPath(&xpath2))
-		.nowait()
-		.exists()
-		.await?;
+
+	let exists;
+
+	if xpath2 != "" {
+		exists = driver
+			.query(By::XPath(&xpath))
+			.or(By::XPath(&xpath2))
+			.nowait()
+			.exists()
+			.await?;
+	} else {
+		exists = driver
+			.query(By::XPath(&xpath))
+			.nowait()
+			.exists()
+			.await?;
+	}
 
 	Ok(exists)
 }
