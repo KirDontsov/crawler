@@ -16,7 +16,7 @@ pub async fn avito_crawler_handler() -> WebDriverResult<()> {
 
 	let utc: DateTime<Utc> = Utc::now() + chrono::Duration::try_hours(3).expect("hours err");
 
-	let mut wtr = Writer::from_path(format!("./output/avito_{}.csv", utc.format("%d-%m-%Y_%H:%M:%S")))
+	let mut wtr = Writer::from_path(format!("./output/avito_{}_{}.csv", utc.format("%d-%m-%Y_%H:%M:%S"), search_query.replace(" ", "_")))
 		.expect("no file");
 
 	wtr.write_record(&[
@@ -420,7 +420,7 @@ pub async fn avito_crawler_handler() -> WebDriverResult<()> {
 
 			let paid = match check_if_block_exists(driver.clone(),
 				format!("//div[contains(@class, \"items-items\")]/div[contains(@class, \"iva-item-root\")][{}]/div/div/div[2]/div[last()]/div[2]/div/i", count),
-				format!("//body/div[1]/div/buyer-location/div/div/div[2]/div/div[2]/div[3]/div[3]/div[3]/div[2]/div[contains(@class, \"iva-item-root\")][{}]/div/div/div[2]/div[last()]/div[2]/div/i", count)
+				"".to_string()
 			).await {
 				Ok(elem) => elem,
 				Err(e) => {
@@ -432,12 +432,23 @@ pub async fn avito_crawler_handler() -> WebDriverResult<()> {
 
 			// Переход в новую вкладку
 			let handle = driver.window().await?;
-			driver.new_tab().await?;
+
+			let title_link_arr = match find_elements(driver.clone(),
+				format!("//div[contains(@class, \"items-items\")]/div[contains(@class, \"iva-item-root\")][{}]/div/div/div[2]/div[2]/div/a", count),
+				format!("//body/div[1]/div/buyer-location/div/div/div[2]/div/div[2]/div[3]/div[3]/div[3]/div[2]/div[contains(@class, \"iva-item-root\")][{}]/div/div/div[2]/div[2]/div/a", count)).await {
+					Ok(res) => res,
+					Err(e) => {
+						println!("error while searching seller_name block: {}", e);
+						driver.clone().quit().await?;
+						Vec::new()
+					}
+			};
+
+			let title_link = title_link_arr.get(0).expect("no title_link");
+
+			title_link.click().await?;
 			let handles = driver.windows().await?;
 			driver.switch_to_window(handles[1].clone()).await?;
-			driver
-				.goto(format!("https://www.avito.ru{}", &href_str))
-				.await?;
 			sleep(Duration::from_secs(5)).await;
 
 			let seller_name_arr = match find_elements(
