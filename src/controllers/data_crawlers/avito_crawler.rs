@@ -12,6 +12,7 @@ pub async fn avito_crawler_handler() -> WebDriverResult<()> {
 	let city_env = env::var("CITY_QUERY").expect("CITY_QUERY not set");
 	let city_query = city_env.as_str();
 	let url = env::var("URL_QUERY").expect("URL_QUERY not set");
+	let select_suggest = env::var("SELECT_SUGGEST").expect("SELECT_SUGGEST not set");
 
 	let utc: DateTime<Utc> = Utc::now() + chrono::Duration::try_hours(3).expect("hours err");
 
@@ -228,25 +229,48 @@ pub async fn avito_crawler_handler() -> WebDriverResult<()> {
 
 	sleep(Duration::from_secs(2)).await;
 
-	let suggest_arr = match find_elements(
-		driver.clone(),
-		"//div[contains(@class, \"suggest-dropdownItems\")]/button[1]".to_string(),
-		"//body/div[3]/div[2]/div/div/div/div/div/div".to_string(),
-	)
-	.await
-	{
-		Ok(res) => res,
-		Err(e) => {
-			println!("error while searching categories block: {}", e);
-			driver.clone().quit().await?;
-			Vec::new()
-		}
-	};
+	if select_suggest.parse().unwrap() {
+		let suggest_arr = match find_elements(
+			driver.clone(),
+			"//div[contains(@class, \"suggest-dropdownItems\")]/button[1]".to_string(),
+			"//body/div[3]/div[2]/div/div/div/div/div/div".to_string(),
+		)
+		.await
+		{
+			Ok(res) => res,
+			Err(e) => {
+				println!("error while searching categories block: {}", e);
+				driver.clone().quit().await?;
+				Vec::new()
+			}
+		};
 
-	let suggest = suggest_arr.get(0).expect("no suggest");
-	// нажимаем на подсказку
-	suggest.click().await?;
-	sleep(Duration::from_secs(5)).await;
+		let suggest = suggest_arr.get(0).expect("no suggest");
+		// нажимаем на подсказку
+		suggest.click().await?;
+		sleep(Duration::from_secs(5)).await;
+
+	} else {
+		let submit_search_arr = match find_elements(
+			driver.clone(),
+			"//div[contains(@class, \"index-form\")]/div[last()]/button".to_string(),
+			"//body/div[1]/div/buyer-location/div/div/div[2]/div/div[1]/div/div/div[3]/div[2]/div[2]/button".to_string(),
+		)
+		.await
+		{
+			Ok(res) => res,
+			Err(e) => {
+				println!("error while searching categories block: {}", e);
+				driver.clone().quit().await?;
+				Vec::new()
+			}
+		};
+
+		let submit_search_button = submit_search_arr.get(0).expect("no suggest");
+		// нажимаем на подсказку
+		submit_search_button.click().await?;
+		sleep(Duration::from_secs(5)).await;
+	}
 
 	let categories = match find_elements(
 		driver.clone(),
@@ -301,14 +325,16 @@ pub async fn avito_crawler_handler() -> WebDriverResult<()> {
 
 	let mut position;
 
-	'outer: for j in 0..=(ads_count / 50.0).ceil() as i32 {
+	let ads_count_res = if ads_count > 50.0 { (ads_count / 50.0).ceil() as i32 } else { ads_count.ceil() as i32 };
+
+	'outer: for j in 0..=ads_count_res {
 		// feed
 		//scroll
 
 		let blocks = match find_elements(
 			driver.clone(),
-			"//div[contains(@class, \"items-items\")][1]/div".to_string(),
-			"//body/div[1]/div/buyer-location/div/div/div[2]/div/div[2]/div[3]/div[3]/div[4]/div[2]/div".to_string(),
+			"//div[contains(@class, \"items-items\")][1]/div[contains(@class, \"iva-item-root\")]".to_string(),
+			"//body/div[1]/div/buyer-location/div/div/div[2]/div/div[2]/div[3]/div[3]/div[4]/div[2]/div[contains(@class, \"iva-item-root\")]".to_string(),
 		)
 		.await
 		{
@@ -353,8 +379,8 @@ pub async fn avito_crawler_handler() -> WebDriverResult<()> {
 			block.scroll_into_view().await?;
 
 			let href_full = match find_href_block(driver.clone(),
-				format!("//div[contains(@class, \"items-items\")]/div[{}]/div/div/div[2]/div[2]/div/a", count),
-				format!("//body/div[1]/div/buyer-location/div/div/div[2]/div/div[2]/div[3]/div[3]/div[3]/div[2]/div[{}]/div/div/div[2]/div[2]/div/a", count)
+				format!("//div[contains(@class, \"items-items\")]/div[contains(@class, \"iva-item-root\")][{}]/div/div/div[2]/div[2]/div/a", count),
+				format!("//body/div[1]/div/buyer-location/div/div/div[2]/div/div[2]/div[3]/div[3]/div[3]/div[2]/div[contains(@class, \"iva-item-root\")][{}]/div/div/div[2]/div[2]/div/a", count)
 			).await {
 				Ok(elem) => elem,
 				Err(e) => {
@@ -370,8 +396,8 @@ pub async fn avito_crawler_handler() -> WebDriverResult<()> {
 			let id = href_str.split("_").last().expect("no href");
 
 			let title = match find_text(driver.clone(),
-				format!("//div[contains(@class, \"items-items\")]/div[{}]/div/div/div[2]/div[2]/div/a/h3", count),
-				format!("//body/div[1]/div/buyer-location/div/div/div[2]/div/div[2]/div[3]/div[3]/div[3]/div[2]/div[{}]/div/div/div[2]/div[2]/div/a/h3", count)).await {
+				format!("//div[contains(@class, \"items-items\")]/div[contains(@class, \"iva-item-root\")][{}]/div/div/div[2]/div[2]/div/a/h3", count),
+				format!("//body/div[1]/div/buyer-location/div/div/div[2]/div/div[2]/div[3]/div[3]/div[3]/div[2]/div[contains(@class, \"iva-item-root\")][{}]/div/div/div[2]/div[2]/div/a/h3", count)).await {
 				Ok(elem) => elem,
 				Err(e) => {
 					println!("error while searching title block: {}", e);
@@ -381,8 +407,8 @@ pub async fn avito_crawler_handler() -> WebDriverResult<()> {
 			};
 
 			let price = match find_price_block(driver.clone(),
-				format!("//div[contains(@class, \"items-items\")]/div[{}]/div/div/div[2]/div[3]/span/div/p/meta[2]", count),
-				format!("//body/div[1]/div/buyer-location/div/div/div[2]/div/div[2]/div[3]/div[3]/div[3]/div[2]/div[{}]/div/div/div[2]/div[3]/span/div/p/meta[2]", count)
+				format!("//div[contains(@class, \"items-items\")]/div[contains(@class, \"iva-item-root\")][{}]/div/div/div[2]/div[3]/span/div/p/meta[2]", count),
+				format!("//body/div[1]/div/buyer-location/div/div/div[2]/div/div[2]/div[3]/div[3]/div[3]/div[2]/div[contains(@class, \"iva-item-root\")][{}]/div/div/div[2]/div[3]/span/div/p/meta[2]", count)
 			).await {
 				Ok(elem) => elem,
 				Err(e) => {
@@ -393,8 +419,8 @@ pub async fn avito_crawler_handler() -> WebDriverResult<()> {
 			};
 
 			let paid = match check_if_block_exists(driver.clone(),
-				format!("//div[contains(@class, \"items-items\")]/div[{}]/div/div/div[2]/div[last()]/div[2]/div/i", count),
-				format!("//body/div[1]/div/buyer-location/div/div/div[2]/div/div[2]/div[3]/div[3]/div[3]/div[2]/div[{}]/div/div/div[2]/div[last()]/div[2]/div/i", count)
+				format!("//div[contains(@class, \"items-items\")]/div[contains(@class, \"iva-item-root\")][{}]/div/div/div[2]/div[last()]/div[2]/div/i", count),
+				format!("//body/div[1]/div/buyer-location/div/div/div[2]/div/div[2]/div[3]/div[3]/div[3]/div[2]/div[contains(@class, \"iva-item-root\")][{}]/div/div/div[2]/div[last()]/div[2]/div/i", count)
 			).await {
 				Ok(elem) => elem,
 				Err(e) => {
@@ -883,17 +909,31 @@ pub async fn find_href_block(
 	xpath: String,
 	xpath2: String,
 ) -> Result<String, WebDriverError> {
-	let elem = driver
-		.query(By::XPath(&xpath))
-		.or(By::XPath(&xpath2))
-		.nowait()
-		.first()
-		.await?
-		.attr("href")
-		.await?
-		.expect("no href");
+	let el_exists = match check_if_block_exists(driver.clone(), xpath.clone(), xpath2.clone()).await
+	{
+		Ok(elem) => elem,
+		Err(e) => {
+			println!("error while searching find_text block: {}", e);
+			driver.clone().quit().await?;
+			false
+		}
+	};
 
-	Ok(elem)
+	if el_exists {
+		let elem = driver
+			.query(By::XPath(&xpath))
+			.or(By::XPath(&xpath2))
+			.nowait()
+			.first()
+			.await?
+			.attr("href")
+			.await?
+			.expect("no href");
+
+		Ok(elem)
+	} else {
+		Ok("".to_string())
+	}
 }
 
 pub async fn find_price_block(
@@ -901,17 +941,31 @@ pub async fn find_price_block(
 	xpath: String,
 	xpath2: String,
 ) -> Result<String, WebDriverError> {
-	let res = driver
-		.query(By::XPath(&xpath))
-		.or(By::XPath(&xpath2))
-		.nowait()
-		.first()
-		.await?
-		.attr("content")
-		.await?
-		.expect("no price");
+	let el_exists = match check_if_block_exists(driver.clone(), xpath.clone(), xpath2.clone()).await
+	{
+		Ok(elem) => elem,
+		Err(e) => {
+			println!("error while searching find_text block: {}", e);
+			driver.clone().quit().await?;
+			false
+		}
+	};
 
-	Ok(res)
+	if el_exists {
+		let elem = driver
+			.query(By::XPath(&xpath))
+			.or(By::XPath(&xpath2))
+			.nowait()
+			.first()
+			.await?
+			.attr("content")
+			.await?
+			.expect("no price");
+
+		Ok(elem)
+	} else {
+		Ok("".to_string())
+	}
 }
 
 pub async fn find_text(
