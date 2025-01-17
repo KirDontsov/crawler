@@ -92,6 +92,7 @@ pub async fn avito_crawler_handler() -> WebDriverResult<()> {
 	.expect("write record err");
 
 	let driver = <dyn Driver>::get_driver().await?;
+	driver.maximize_window().await?;
 
 	driver.goto(url).await?;
 
@@ -331,6 +332,38 @@ pub async fn avito_crawler_handler() -> WebDriverResult<()> {
 		// feed
 		//scroll
 
+		// капча
+		let firewall_msg = match check_if_block_exists(driver.clone(),
+			"//h2[contains(@class, \"firewall-title\")]".to_string(),
+			"".to_string()).await {
+				Ok(res) => res,
+				Err(e) => {
+					println!("error while searching firewall_msg block: {}", e);
+					false
+				}
+		};
+
+		if firewall_msg {
+			'firewall: for f in 0..=3600 {
+				println!("====== firewall ======");
+				sleep(Duration::from_secs(30)).await;
+
+				let firewall_msg_in_loop = match check_if_block_exists(driver.clone(),
+					"//h2[contains(@class, \"firewall-title\")]".to_string(),
+					"".to_string()).await {
+						Ok(res) => res,
+						Err(e) => {
+							println!("error while searching firewall_msg_in_loop block: {}", e);
+							false
+						}
+				};
+
+				if !firewall_msg_in_loop {
+					break 'firewall;
+				}
+			}
+		}
+
 		let blocks = match find_elements(
 			driver.clone(),
 			"//div[contains(@class, \"items-items\")][1]/div[contains(@class, \"iva-item-root\")]".to_string(),
@@ -433,6 +466,38 @@ pub async fn avito_crawler_handler() -> WebDriverResult<()> {
 			// Переход в новую вкладку
 			let handle = driver.window().await?;
 
+			// капча
+			let firewall_msg = match check_if_block_exists(driver.clone(),
+				"//h2[contains(@class, \"firewall-title\")]".to_string(),
+				"".to_string()).await {
+					Ok(res) => res,
+					Err(e) => {
+						println!("error while searching firewall_msg block: {}", e);
+						false
+					}
+			};
+
+			if firewall_msg {
+				'firewall: for f in 0..=3600 {
+					println!("====== firewall ======");
+					sleep(Duration::from_secs(30)).await;
+
+					let firewall_msg_in_loop = match check_if_block_exists(driver.clone(),
+						"//h2[contains(@class, \"firewall-title\")]".to_string(),
+						"".to_string()).await {
+							Ok(res) => res,
+							Err(e) => {
+								println!("error while searching firewall_msg_in_loop block: {}", e);
+								false
+							}
+					};
+
+					if !firewall_msg_in_loop {
+						break 'firewall;
+					}
+				}
+			}
+
 			let title_link_arr = match find_elements(driver.clone(),
 				format!("//div[contains(@class, \"items-items\")]/div[contains(@class, \"iva-item-root\")][{}]/div/div/div[2]/div[2]/div/a", count),
 				format!("//body/div[1]/div/buyer-location/div/div/div[2]/div/div[2]/div[3]/div[3]/div[3]/div[2]/div[contains(@class, \"iva-item-root\")][{}]/div/div/div[2]/div[2]/div/a", count)).await {
@@ -446,7 +511,12 @@ pub async fn avito_crawler_handler() -> WebDriverResult<()> {
 
 			let title_link = title_link_arr.get(0).expect("no title_link");
 
-			title_link.click().await?;
+			driver
+				.action_chain()
+		    .move_to_element_center(&title_link)
+		    .click()
+		    .perform().await?;
+
 			let handles = driver.windows().await?;
 			driver.switch_to_window(handles[1].clone()).await?;
 			sleep(Duration::from_secs(5)).await;
