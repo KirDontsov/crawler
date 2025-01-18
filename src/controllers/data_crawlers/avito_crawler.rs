@@ -494,7 +494,7 @@ pub async fn avito_crawler_handler() -> WebDriverResult<()> {
 			sleep(Duration::from_secs(5)).await;
 
 			// капча
-			let firewall_msg = match check_if_block_exists(driver.clone(),
+			let firewall_msg_inpage = match check_if_block_exists(driver.clone(),
 				"//h2[contains(@class, \"firewall-title\")]".to_string(),
 				"".to_string()).await {
 					Ok(res) => res,
@@ -504,12 +504,12 @@ pub async fn avito_crawler_handler() -> WebDriverResult<()> {
 					}
 			};
 
-			if firewall_msg {
-				'firewall: for _ in 0..=3600 {
+			if firewall_msg_inpage {
+				'firewall_in_page: for _ in 0..=3600 {
 					println!("====== firewall ======");
 					sleep(Duration::from_secs(30)).await;
 
-					let firewall_msg_in_loop = match check_if_block_exists(driver.clone(),
+					let firewall_msg_in_loop_in_page = match check_if_block_exists(driver.clone(),
 						"//h2[contains(@class, \"firewall-title\")]".to_string(),
 						"".to_string()).await {
 							Ok(res) => res,
@@ -519,8 +519,8 @@ pub async fn avito_crawler_handler() -> WebDriverResult<()> {
 							}
 					};
 
-					if !firewall_msg_in_loop {
-						break 'firewall;
+					if !firewall_msg_in_loop_in_page {
+						break 'firewall_in_page;
 					}
 				}
 			}
