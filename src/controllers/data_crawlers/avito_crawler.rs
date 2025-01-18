@@ -13,6 +13,7 @@ pub async fn avito_crawler_handler() -> WebDriverResult<()> {
 	let city_query = city_env.as_str();
 	let url = env::var("URL_QUERY").expect("URL_QUERY not set");
 	let select_suggest = env::var("SELECT_SUGGEST").expect("SELECT_SUGGEST not set");
+	let fullscreen_mode = env::var("FULLSCREEN_MODE").expect("FULLSCREEN_MODE not set");
 
 	let utc: DateTime<Utc> = Utc::now() + chrono::Duration::try_hours(3).expect("hours err");
 
@@ -92,7 +93,10 @@ pub async fn avito_crawler_handler() -> WebDriverResult<()> {
 	.expect("write record err");
 
 	let driver = <dyn Driver>::get_driver().await?;
-	driver.maximize_window().await?;
+
+	if fullscreen_mode.parse().unwrap() {
+		driver.maximize_window().await?;
+	}
 
 	driver.goto(url).await?;
 
