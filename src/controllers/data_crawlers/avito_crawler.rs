@@ -21,55 +21,12 @@ pub async fn avito_crawler_handler() -> WebDriverResult<()> {
 		.expect("no file");
 
 	wtr.write_record(&[
-		"Дата",
-		"Город",
-		"Метро",
-		"Район",
-		"Запрос",
-		"",
-		"",
-		"",
-		"",
-		"",
-		"",
-		"",
-		"",
-		"",
-		"",
-		"",
-		"",
-		"",
-		"",
-		"",
-	])
-	.expect("write record err");
-
-	wtr.write_record(&[
-		format!("{}", utc.format("%d-%m-%Y_%H:%M:%S")).as_str(),
-		city_query,
-		"-",
-		"-",
-		search_query,
-		"",
-		"",
-		"",
-		"",
-		"",
-		"",
-		"",
-		"",
-		"",
-		"",
-		"",
-		"",
-		"",
-		"",
-		"",
-	])
-	.expect("write record err");
-
-	wtr.write_record(&[
+		"Дата прогона",
 		"Поз.",
+		"Дата объявления",
+		"Просмотров",
+		"Просмотров сегодня",
+		"Продвижение",
 		"id",
 		"Название",
 		"Ссылка",
@@ -85,10 +42,6 @@ pub async fn avito_crawler_handler() -> WebDriverResult<()> {
 		"Описание",
 		"Город (запрос)",
 		"Адрес",
-		"Дата",
-		"Просмотров",
-		"Просмотров сегодня",
-		"Продвижение",
 	])
 	.expect("write record err");
 
@@ -114,7 +67,6 @@ pub async fn avito_crawler_handler() -> WebDriverResult<()> {
 		Ok(res) => res,
 		Err(e) => {
 			println!("error while searching categories block: {}", e);
-			driver.clone().quit().await?;
 			Vec::new()
 		}
 	};
@@ -135,7 +87,6 @@ pub async fn avito_crawler_handler() -> WebDriverResult<()> {
 		Ok(res) => res,
 		Err(e) => {
 			println!("error while searching categories block: {}", e);
-			driver.clone().quit().await?;
 			Vec::new()
 		}
 	};
@@ -157,7 +108,6 @@ pub async fn avito_crawler_handler() -> WebDriverResult<()> {
 		Ok(res) => res,
 		Err(e) => {
 			println!("error while searching categories block: {}", e);
-			driver.clone().quit().await?;
 			Vec::new()
 		}
 	};
@@ -177,7 +127,6 @@ pub async fn avito_crawler_handler() -> WebDriverResult<()> {
 		Ok(res) => res,
 		Err(e) => {
 			println!("error while searching categories block: {}", e);
-			driver.clone().quit().await?;
 			Vec::new()
 		}
 	};
@@ -198,7 +147,6 @@ pub async fn avito_crawler_handler() -> WebDriverResult<()> {
 			Ok(res) => res,
 			Err(e) => {
 				println!("error while searching categories block: {}", e);
-				driver.clone().quit().await?;
 				Vec::new()
 			}
 		};
@@ -218,7 +166,6 @@ pub async fn avito_crawler_handler() -> WebDriverResult<()> {
 		Ok(res) => res,
 		Err(e) => {
 			println!("error while searching categories block: {}", e);
-			driver.clone().quit().await?;
 			Vec::new()
 		}
 	};
@@ -245,7 +192,6 @@ pub async fn avito_crawler_handler() -> WebDriverResult<()> {
 			Ok(res) => res,
 			Err(e) => {
 				println!("error while searching categories block: {}", e);
-				driver.clone().quit().await?;
 				Vec::new()
 			}
 		};
@@ -266,7 +212,6 @@ pub async fn avito_crawler_handler() -> WebDriverResult<()> {
 			Ok(res) => res,
 			Err(e) => {
 				println!("error while searching categories block: {}", e);
-				driver.clone().quit().await?;
 				Vec::new()
 			}
 		};
@@ -287,7 +232,6 @@ pub async fn avito_crawler_handler() -> WebDriverResult<()> {
 		Ok(res) => res,
 		Err(e) => {
 			println!("error while searching categories block: {}", e);
-			driver.clone().quit().await?;
 			Vec::new()
 		}
 	};
@@ -315,12 +259,10 @@ pub async fn avito_crawler_handler() -> WebDriverResult<()> {
 	.await
 	{
 		Ok(elem) => {
-			dbg!(&elem);
 			elem.replace("&nbsp;", "").replace(" ", "").parse::<f32>().unwrap_or(0.0)
 		},
 		Err(e) => {
 			println!("error while searching ads_count block: {}", e);
-			driver.clone().quit().await?;
 			0.0
 		}
 	};
@@ -587,7 +529,6 @@ pub async fn avito_crawler_handler() -> WebDriverResult<()> {
 				Ok(res) => res,
 				Err(e) => {
 					println!("error while searching reviews block: {}", e);
-					driver.clone().quit().await?;
 					Vec::new()
 				}
 			};
@@ -613,7 +554,6 @@ pub async fn avito_crawler_handler() -> WebDriverResult<()> {
 				Ok(elem) => elem,
 				Err(e) => {
 					println!("error while searching ads_banner_arr block: {}", e);
-					driver.clone().quit().await?;
 					false
 				}
 			};
@@ -631,7 +571,6 @@ pub async fn avito_crawler_handler() -> WebDriverResult<()> {
 					Ok(res) => res,
 					Err(e) => {
 						println!("error while searching register_date block: {}", e);
-						driver.clone().quit().await?;
 						Vec::new()
 					}
 				};
@@ -646,7 +585,6 @@ pub async fn avito_crawler_handler() -> WebDriverResult<()> {
 					Ok(res) => res,
 					Err(e) => {
 						println!("error while searching register_date block: {}", e);
-						driver.clone().quit().await?;
 						Vec::new()
 					}
 				};
@@ -677,7 +615,6 @@ pub async fn avito_crawler_handler() -> WebDriverResult<()> {
 				Ok(res) => res,
 				Err(e) => {
 					println!("error while searching seller_ads_count block: {}", e);
-					driver.clone().quit().await?;
 					Vec::new()
 				}
 			};
@@ -687,6 +624,7 @@ pub async fn avito_crawler_handler() -> WebDriverResult<()> {
 					.text()
 					.await?
 					.replace("пользователя", "")
+					.replace("объявление", "")
 					.replace("объявления", "")
 					.replace("объявлений", "")
 					.replace(" ", ""),
@@ -704,7 +642,6 @@ pub async fn avito_crawler_handler() -> WebDriverResult<()> {
 				Ok(res) => res,
 				Err(e) => {
 					println!("error while searching seller_ads_count block: {}", e);
-					driver.clone().quit().await?;
 					Vec::new()
 				}
 			};
@@ -718,7 +655,7 @@ pub async fn avito_crawler_handler() -> WebDriverResult<()> {
 				descriptions_arr.push(description);
 			}
 
-			let description_string = descriptions_arr.join("; ");
+			let description_string = descriptions_arr.join(" ");
 
 			// Адрес
 			let address_arr = match find_elements(
@@ -731,7 +668,6 @@ pub async fn avito_crawler_handler() -> WebDriverResult<()> {
 				Ok(res) => res,
 				Err(e) => {
 					println!("error while searching address block: {}", e);
-					driver.clone().quit().await?;
 					Vec::new()
 				}
 			};
@@ -750,7 +686,6 @@ pub async fn avito_crawler_handler() -> WebDriverResult<()> {
 				Ok(elem) => elem,
 				Err(e) => {
 					println!("error while searching ads_banner_arr block: {}", e);
-					driver.clone().quit().await?;
 					false
 				}
 			};
@@ -771,7 +706,6 @@ pub async fn avito_crawler_handler() -> WebDriverResult<()> {
 					Ok(res) => res,
 					Err(e) => {
 						println!("error while searching date block: {}", e);
-						driver.clone().quit().await?;
 						Vec::new()
 					}
 				};
@@ -792,7 +726,6 @@ pub async fn avito_crawler_handler() -> WebDriverResult<()> {
 					Ok(res) => res,
 					Err(e) => {
 						println!("error while searching views block: {}", e);
-						driver.clone().quit().await?;
 						Vec::new()
 					}
 				};
@@ -836,7 +769,6 @@ pub async fn avito_crawler_handler() -> WebDriverResult<()> {
 					Ok(res) => res,
 					Err(e) => {
 						println!("error while searching date block: {}", e);
-						driver.clone().quit().await?;
 						Vec::new()
 					}
 				};
@@ -857,7 +789,6 @@ pub async fn avito_crawler_handler() -> WebDriverResult<()> {
 					Ok(res) => res,
 					Err(e) => {
 						println!("error while searching views block: {}", e);
-						driver.clone().quit().await?;
 						Vec::new()
 					}
 				};
@@ -884,7 +815,6 @@ pub async fn avito_crawler_handler() -> WebDriverResult<()> {
 					Ok(res) => res,
 					Err(e) => {
 						println!("error while searching views block: {}", e);
-						driver.clone().quit().await?;
 						Vec::new()
 					}
 				};
@@ -912,7 +842,12 @@ pub async fn avito_crawler_handler() -> WebDriverResult<()> {
 			println!("{} из {} - {}", &position, &ads_count.clone(), &id);
 
 			wtr.write_record(&[
+				format!("{}", utc.format("%d-%m-%Y_%H:%M:%S")).as_str(),
 				position.to_string().as_str(),
+				date.as_str(),
+				views.as_str(),
+				views_today.as_str(),
+				paid.to_string().as_str(),
 				id,
 				title.replace("\"", "").as_str(),
 				href.as_str(),
@@ -928,10 +863,6 @@ pub async fn avito_crawler_handler() -> WebDriverResult<()> {
 				description_string.as_str(),
 				city_query,
 				address.as_str(),
-				date.as_str(),
-				views.as_str(),
-				views_today.as_str(),
-				paid.to_string().as_str(),
 			])
 			.expect("write record err");
 		}
@@ -946,7 +877,6 @@ pub async fn avito_crawler_handler() -> WebDriverResult<()> {
 			Ok(elem) => elem,
 			Err(e) => {
 				println!("error while searching main_arr block: {}", e);
-				driver.clone().quit().await?;
 				Vec::new()
 			}
 		};
