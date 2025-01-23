@@ -1,7 +1,7 @@
 use thirtyfour::prelude::*;
 use tokio::time::{sleep, Duration};
 
-use crate::api::Crawler;
+use crate::shared::Crawler;
 
 pub trait Feed {}
 

@@ -1,6 +1,6 @@
 use thirtyfour::prelude::*;
 
-use crate::api::Crawler;
+use crate::shared::Crawler;
 
 pub trait Firewall {}
 

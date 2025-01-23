@@ -1,12 +1,12 @@
-use crate::api::{Ad, Driver, Firewall, Header, Settings};
 use chrono::{DateTime, Utc};
 use csv::Writer;
 use std::env;
 use thirtyfour::prelude::*;
 use tokio::time::{sleep, Duration};
 
-use crate::api::{Crawler, Feed};
-use crate::shared::Constants;
+use crate::api::{Ad, Firewall, Header, Settings};
+use crate::api::Feed;
+use crate::shared::{Driver, Crawler, Constants};
 
 #[allow(unreachable_code)]
 pub async fn ads_crawler() -> WebDriverResult<()> {
