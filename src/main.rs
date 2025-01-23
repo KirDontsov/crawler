@@ -6,7 +6,7 @@ use dotenv::dotenv;
 use std::env;
 use std::error::Error;
 
-use crate::controllers::ads_crawler;
+use crate::controllers::{ads_crawler, vacancies_crawler};
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
@@ -24,7 +24,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
 	match processing_type.as_str() {
 		"ads" => ads_crawler().await?,
-		// "smth_else" => avito_crawler_handler().await?,
+		"vacancies" => vacancies_crawler().await?,
 		_ => println!("error in env (no such handler)!"),
 	}
 

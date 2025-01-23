@@ -4,9 +4,9 @@ use std::env;
 use thirtyfour::prelude::*;
 use tokio::time::{sleep, Duration};
 
-use crate::api::{Ad, Firewall, Header, Settings};
+use crate::api::{AdsAd, Header, Settings};
 use crate::api::Feed;
-use crate::shared::{Driver, Crawler, Constants};
+use crate::shared::{Driver, Firewall, Crawler, Constants};
 
 #[allow(unreachable_code)]
 pub async fn ads_crawler() -> WebDriverResult<()> {
@@ -21,14 +21,14 @@ pub async fn ads_crawler() -> WebDriverResult<()> {
 	let utc: DateTime<Utc> = Utc::now() + chrono::Duration::try_hours(3).expect("hours err");
 
 	let mut wtr = Writer::from_path(format!(
-		"./output/avito_{}_{}_{}.csv",
+		"./output/ads_{}_{}_{}.csv",
 		utc.format("%d-%m-%Y_%H:%M:%S"),
 		search_query.replace(" ", "_"),
 		city_query.replace(" ", "_")
 	))
 	.expect("no file");
 
-	let headers = <dyn Constants>::get_crawler_table_headers();
+	let headers = <dyn Constants>::get_ads_crawler_table_headers();
 
 	wtr.write_record(&headers).expect("write record err");
 
@@ -51,6 +51,7 @@ pub async fn ads_crawler() -> WebDriverResult<()> {
 	let _ = <dyn Settings>::select_search_suggest(
 		driver.clone(),
 		select_suggest.parse().unwrap_or(true),
+		false
 	)
 	.await?;
 
@@ -173,16 +174,16 @@ pub async fn ads_crawler() -> WebDriverResult<()> {
 				}
 			}
 
-			let (seller_id, seller_name) = <dyn Ad>::get_seller_name_arr(driver.clone()).await?;
-			let rating = <dyn Ad>::get_rating(driver.clone()).await?;
-			let reviews = <dyn Ad>::get_reviews(driver.clone()).await?;
-			let register_date = <dyn Ad>::get_register_date(driver.clone()).await?;
-			let seller_ads_count = <dyn Ad>::get_seller_ads_count(driver.clone()).await?;
-			let description_string = <dyn Ad>::get_description(driver.clone()).await?;
-			let address = <dyn Ad>::get_address(driver.clone()).await?;
-			let footer_article = <dyn Ad>::check_footer_article(driver.clone()).await?;
-			let date = <dyn Ad>::get_date(driver.clone(), footer_article).await?;
-			let (views, views_today) = <dyn Ad>::get_views_and_views_today(driver.clone(), footer_article).await?;
+			let (seller_id, seller_name) = <dyn AdsAd>::get_seller_name_arr(driver.clone()).await?;
+			let rating = <dyn AdsAd>::get_rating(driver.clone()).await?;
+			let reviews = <dyn AdsAd>::get_reviews(driver.clone()).await?;
+			let register_date = <dyn AdsAd>::get_register_date(driver.clone()).await?;
+			let seller_ads_count = <dyn AdsAd>::get_seller_ads_count(driver.clone()).await?;
+			let description_string = <dyn AdsAd>::get_description(driver.clone()).await?;
+			let address = <dyn AdsAd>::get_address(driver.clone()).await?;
+			let footer_article = <dyn AdsAd>::check_footer_article(driver.clone()).await?;
+			let date = <dyn AdsAd>::get_date(driver.clone(), footer_article).await?;
+			let (views, views_today) = <dyn AdsAd>::get_views_and_views_today(driver.clone(), footer_article).await?;
 
 			// === RESULT ===
 

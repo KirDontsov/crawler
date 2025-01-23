@@ -159,25 +159,45 @@ impl dyn Settings {
 
 		Ok(())
 	}
-
+//← Вакансии
 	pub async fn select_search_suggest(
 		driver: WebDriver,
 		select_suggest: bool,
+		vacancies: bool,
 	) -> Result<(), WebDriverError> {
 		if select_suggest {
-			let suggest_arr = match <dyn Crawler>::find_elements(
-				driver.clone(),
-				"//div[contains(@class, \"suggest-dropdownItems\")]/button[1]".to_string(),
-				"//body/div[3]/div[2]/div/div/div/div/div/div".to_string(),
-			)
-			.await
-			{
-				Ok(res) => res,
-				Err(e) => {
-					println!("error while searching categories block: {}", e);
-					Vec::new()
-				}
-			};
+			//*[text()[contains(.,'← Вакансии')]]
+			let suggest_arr;
+
+			if !vacancies {
+				suggest_arr = match <dyn Crawler>::find_elements(
+					driver.clone(),
+					"//div[contains(@class, \"suggest-dropdownItems\")]/button[1]".to_string(),
+					"//body/div[3]/div[2]/div/div/div/div/div/div".to_string(),
+				)
+				.await
+				{
+					Ok(res) => res,
+					Err(e) => {
+						println!("error while searching categories block: {}", e);
+						Vec::new()
+					}
+				};
+			} else {
+				suggest_arr = match <dyn Crawler>::find_elements(
+					driver.clone(),
+					"//div[contains(@class, \"suggest-dropdownItems\")]/button//*[text()[contains(.,'← Вакансии')]]".to_string(),
+					"//body/div[3]/div[2]/div/div/div/div/div/div//*[text()[contains(.,'← Вакансии')]]".to_string(),
+				)
+				.await
+				{
+					Ok(res) => res,
+					Err(e) => {
+						println!("error while searching categories block: {}", e);
+						Vec::new()
+					}
+				};
+			}
 
 			let suggest = suggest_arr.get(0).expect("no suggest");
 			// нажимаем на подсказку

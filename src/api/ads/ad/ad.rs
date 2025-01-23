@@ -2,9 +2,9 @@ use thirtyfour::prelude::*;
 
 use crate::shared::Crawler;
 
-pub trait Ad {}
+pub trait AdsAd {}
 
-impl dyn Ad {
+impl dyn AdsAd {
 	pub async fn get_seller_name_arr(
 		driver: WebDriver,
 	) -> Result<(String, String), WebDriverError> {
