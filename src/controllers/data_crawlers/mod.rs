@@ -1,3 +1,3 @@
-pub mod avito_crawler;
+pub mod ads_crawler;
 
-pub use self::avito_crawler::*;
+pub use self::ads_crawler::*;

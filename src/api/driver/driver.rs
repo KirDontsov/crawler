@@ -1,5 +1,5 @@
-use thirtyfour::{prelude::*, PageLoadStrategy};
 use std::env;
+use thirtyfour::{prelude::*, PageLoadStrategy};
 
 pub trait Driver {}
 

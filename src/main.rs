@@ -1,11 +1,12 @@
-mod controllers;
 mod api;
+mod controllers;
+mod shared;
 
 use dotenv::dotenv;
 use std::env;
 use std::error::Error;
 
-use crate::controllers::avito_crawler_handler;
+use crate::controllers::ads_crawler;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
@@ -22,7 +23,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
 	println!("PROCESSING_TYPE: {}", &processing_type);
 
 	match processing_type.as_str() {
-		"avito" => avito_crawler_handler().await?,
+		"ads" => ads_crawler().await?,
 		// "smth_else" => avito_crawler_handler().await?,
 		_ => println!("error in env (no such handler)!"),
 	}
