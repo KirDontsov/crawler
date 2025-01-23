@@ -30,8 +30,7 @@ pub async fn ads_crawler() -> WebDriverResult<()> {
 
 	let headers = <dyn Constants>::get_crawler_table_headers();
 
-	wtr.write_record(&headers)
-	.expect("write record err");
+	wtr.write_record(&headers).expect("write record err");
 
 	let driver = <dyn Driver>::get_driver().await?;
 
@@ -49,7 +48,11 @@ pub async fn ads_crawler() -> WebDriverResult<()> {
 	let _ = <dyn Settings>::click_region_suggest(driver.clone()).await?;
 	let _ = <dyn Settings>::click_geo_confirm(driver.clone()).await?;
 	let _ = <dyn Settings>::write_search_input(driver.clone(), search_query).await?;
-	let _ = <dyn Settings>::select_search_suggest(driver.clone(), select_suggest.parse().unwrap_or(true)).await?;
+	let _ = <dyn Settings>::select_search_suggest(
+		driver.clone(),
+		select_suggest.parse().unwrap_or(true),
+	)
+	.await?;
 
 	let categories = <dyn Header>::get_categories(driver.clone()).await?;
 	let ads_count = <dyn Header>::get_ads_count(driver.clone()).await?;
@@ -161,7 +164,8 @@ pub async fn ads_crawler() -> WebDriverResult<()> {
 					println!("====== firewall ======");
 					sleep(Duration::from_secs(30)).await;
 
-					let firewall_msg_in_loop_in_page = <dyn Firewall>::get_firewall(driver.clone()).await?;
+					let firewall_msg_in_loop_in_page =
+						<dyn Firewall>::get_firewall(driver.clone()).await?;
 
 					if !firewall_msg_in_loop_in_page {
 						break 'firewall_in_page;

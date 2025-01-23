@@ -1,6 +1,6 @@
 pub trait Constants {}
 
-impl dyn  Constants {
+impl dyn Constants {
 	pub fn get_crawler_table_headers() -> [&'static str; 21] {
 		[
 			"Дата прогона",

@@ -9,7 +9,8 @@ impl dyn Header {
 		let categories = match <dyn Crawler>::find_elements(
 			driver.clone(),
 			"//div[contains(@class, \"breadcrumbs-root\")]/span/a".to_string(),
-			"//body/div[1]/div/buyer-location/div/div/div[2]/div/div[2]/div[1]/span[1]/a".to_string(),
+			"//body/div[1]/div/buyer-location/div/div/div[2]/div/div[2]/div[1]/span[1]/a"
+				.to_string(),
 		)
 		.await
 		{
@@ -41,7 +42,8 @@ impl dyn Header {
 		let ads_count = match <dyn Crawler>::find_text(
 			driver.clone(),
 			"//span[contains(@class, \"page-title-count\")]".to_string(),
-			"//body/div[1]/div/buyer-location/div/div/div[2]/div/div[2]/div[2]/div/span".to_string(),
+			"//body/div[1]/div/buyer-location/div/div/div[2]/div/div[2]/div[2]/div/span"
+				.to_string(),
 		)
 		.await
 		{

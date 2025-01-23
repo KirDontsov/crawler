@@ -54,7 +54,10 @@ impl dyn Settings {
 		Ok(())
 	}
 
-	pub async fn write_region_input(driver: WebDriver, city_query: &str) -> Result<(), WebDriverError> {
+	pub async fn write_region_input(
+		driver: WebDriver,
+		city_query: &str,
+	) -> Result<(), WebDriverError> {
 		// строка выбора региона
 		let region_input_arr = match <dyn Crawler>::find_elements(
 			driver.clone(),
@@ -127,7 +130,10 @@ impl dyn Settings {
 		Ok(())
 	}
 
-	pub async fn write_search_input(driver: WebDriver, search_query: &str) -> Result<(), WebDriverError> {
+	pub async fn write_search_input(
+		driver: WebDriver,
+		search_query: &str,
+	) -> Result<(), WebDriverError> {
 		// заполнение поиска
 		let input_arr = match <dyn Crawler>::find_elements(driver.clone(),
 			"//div[contains(@class, \"suggest-input\")]/label/div/div/input".to_string(),
@@ -154,7 +160,10 @@ impl dyn Settings {
 		Ok(())
 	}
 
-	pub async fn select_search_suggest(driver: WebDriver, select_suggest: bool) -> Result<(), WebDriverError> {
+	pub async fn select_search_suggest(
+		driver: WebDriver,
+		select_suggest: bool,
+	) -> Result<(), WebDriverError> {
 		if select_suggest {
 			let suggest_arr = match <dyn Crawler>::find_elements(
 				driver.clone(),

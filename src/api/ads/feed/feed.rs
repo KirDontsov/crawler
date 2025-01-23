@@ -119,16 +119,19 @@ impl dyn Feed {
 		Ok(parent.to_owned())
 	}
 
-	pub async fn click_ad_title_link(driver: WebDriver, xpath: String, xpath2: String) -> Result<(), WebDriverError> {
-		let title_link_arr = match <dyn Crawler>::find_elements(driver.clone(),
-			xpath,
-			xpath2).await {
-				Ok(res) => res,
-				Err(e) => {
-					println!("error while searching seller_name block: {}", e);
-					driver.clone().quit().await?;
-					Vec::new()
-				}
+	pub async fn click_ad_title_link(
+		driver: WebDriver,
+		xpath: String,
+		xpath2: String,
+	) -> Result<(), WebDriverError> {
+		let title_link_arr = match <dyn Crawler>::find_elements(driver.clone(), xpath, xpath2).await
+		{
+			Ok(res) => res,
+			Err(e) => {
+				println!("error while searching seller_name block: {}", e);
+				driver.clone().quit().await?;
+				Vec::new()
+			}
 		};
 
 		let title_link = title_link_arr.get(0).expect("no title_link");

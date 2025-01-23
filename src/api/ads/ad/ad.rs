@@ -5,7 +5,9 @@ use crate::api::Crawler;
 pub trait Ad {}
 
 impl dyn Ad {
-	pub async fn get_seller_name_arr(driver: WebDriver) -> Result<(String, String), WebDriverError> {
+	pub async fn get_seller_name_arr(
+		driver: WebDriver,
+	) -> Result<(String, String), WebDriverError> {
 		let seller_name_arr = match <dyn Crawler>::find_elements(
 			driver.clone(),
 			"//div[contains(@class, \"style-seller-info-name\")]//a".to_string(),
@@ -35,7 +37,7 @@ impl dyn Ad {
 				} else {
 					"".to_string()
 				}
-			},
+			}
 			None => "".to_string(),
 		};
 
@@ -197,7 +199,8 @@ impl dyn Ad {
 		let description_blocks_arr = match <dyn Crawler>::find_elements(
 			driver.clone(),
 			"//div[contains(@class, \"style-item-description-html\")]/p".to_string(),
-			"//body/div[1]/div/div[3]/div[1]/div/div[2]/div[3]/div/div[1]/div[2]/div[3]/div/div/p".to_string(),
+			"//body/div[1]/div/div[3]/div[1]/div/div[2]/div[3]/div/div[1]/div[2]/div[3]/div/div/p"
+				.to_string(),
 		)
 		.await
 		{
@@ -260,7 +263,10 @@ impl dyn Ad {
 		Ok(footer_article)
 	}
 
-	pub async fn get_date(driver: WebDriver, footer_article: bool) -> Result<String, WebDriverError> {
+	pub async fn get_date(
+		driver: WebDriver,
+		footer_article: bool,
+	) -> Result<String, WebDriverError> {
 		let date;
 
 		if !footer_article {
@@ -306,7 +312,10 @@ impl dyn Ad {
 		Ok(date)
 	}
 
-	pub async fn get_views_and_views_today(driver: WebDriver, footer_article: bool) -> Result<(String, String), WebDriverError> {
+	pub async fn get_views_and_views_today(
+		driver: WebDriver,
+		footer_article: bool,
+	) -> Result<(String, String), WebDriverError> {
 		let views;
 		let views_today;
 
@@ -407,6 +416,4 @@ impl dyn Ad {
 
 		Ok((views, views_today))
 	}
-
-
 }
