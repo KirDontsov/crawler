@@ -23,10 +23,10 @@ pub async fn avito_crawler_handler() -> WebDriverResult<()> {
 	wtr.write_record(&[
 		"Дата прогона",
 		"Поз.",
-		"Дата объявления",
 		"Просмотров",
 		"Просмотров сегодня",
 		"Продвижение",
+		"Дата объявления",
 		"id",
 		"Название",
 		"Ссылка",
@@ -844,10 +844,10 @@ pub async fn avito_crawler_handler() -> WebDriverResult<()> {
 			wtr.write_record(&[
 				format!("{}", utc.format("%d-%m-%Y_%H:%M:%S")).as_str(),
 				position.to_string().as_str(),
-				date.as_str(),
 				views.as_str(),
 				views_today.as_str(),
 				paid.to_string().as_str(),
+				date.as_str(),
 				id,
 				title.replace("\"", "").as_str(),
 				href.as_str(),
