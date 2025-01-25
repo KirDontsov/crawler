@@ -84,21 +84,6 @@ impl dyn Feed {
 		Ok(price)
 	}
 
-	pub async fn get_paid(driver: WebDriver, xpath: String) -> Result<bool, WebDriverError> {
-		let paid = match <dyn Crawler>::check_if_block_exists(driver.clone(), xpath, "".to_string())
-			.await
-		{
-			Ok(elem) => elem,
-			Err(e) => {
-				println!("error while searching paid block: {}", e);
-				driver.clone().quit().await?;
-				false
-			}
-		};
-
-		Ok(paid)
-	}
-
 	pub async fn move_mouse_to_paid(driver: WebDriver, xpath: String) -> Result<(), WebDriverError> {
 		let paid_icon_arr = match <dyn Crawler>::find_elements(driver.clone(), xpath, "".to_string()).await
 		{

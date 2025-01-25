@@ -4,8 +4,7 @@ use std::env;
 use thirtyfour::prelude::*;
 use tokio::time::{sleep, Duration};
 
-use crate::api::Settings;
-use crate::api::{Header, Feed};
+use crate::api::{Header, Feed, Settings, AdsAd};
 use crate::shared::{Driver, Firewall, Constants, Crawler};
 
 #[allow(unreachable_code)]
@@ -28,7 +27,7 @@ pub async fn vacancies_crawler() -> WebDriverResult<()> {
 	))
 	.expect("no file");
 
-	let headers = <dyn Constants>::get_ads_crawler_table_headers();
+	let headers = <dyn Constants>::get_vacancies_crawler_table_headers();
 
 	wtr.write_record(&headers).expect("write record err");
 
@@ -42,18 +41,18 @@ pub async fn vacancies_crawler() -> WebDriverResult<()> {
 
 	sleep(Duration::from_secs(2)).await;
 
-	// let _ = <dyn Settings>::click_open_geo_modal_btn(driver.clone()).await?;
-	// let _ = <dyn Settings>::click_clear_btn(driver.clone()).await?;
-	// let _ = <dyn Settings>::write_region_input(driver.clone(), city_query).await?;
-	// let _ = <dyn Settings>::click_region_suggest(driver.clone()).await?;
-	// let _ = <dyn Settings>::click_geo_confirm(driver.clone()).await?;
-	// let _ = <dyn Settings>::write_search_input(driver.clone(), search_query).await?;
-	// let _ = <dyn Settings>::select_search_suggest(
-	// 	driver.clone(),
-	// 	select_suggest.parse().unwrap_or(true),
-	// 	true
-	// )
-	// .await?;
+	let _ = <dyn Settings>::click_open_geo_modal_btn(driver.clone()).await?;
+	let _ = <dyn Settings>::click_clear_btn(driver.clone()).await?;
+	let _ = <dyn Settings>::write_region_input(driver.clone(), city_query).await?;
+	let _ = <dyn Settings>::click_region_suggest(driver.clone()).await?;
+	let _ = <dyn Settings>::click_geo_confirm(driver.clone()).await?;
+	let _ = <dyn Settings>::write_search_input(driver.clone(), search_query).await?;
+	let _ = <dyn Settings>::select_search_suggest(
+		driver.clone(),
+		select_suggest.parse().unwrap_or(true),
+		true
+	)
+	.await?;
 
 	// let categories = <dyn Header>::get_categories(driver.clone()).await?;
 	let ads_count = <dyn Header>::get_ads_count(driver.clone()).await?;
@@ -137,10 +136,6 @@ pub async fn vacancies_crawler() -> WebDriverResult<()> {
 				format!("//body/div[1]/div/buyer-location/div/div/div[2]/div/div[2]/div[3]/div[3]/div[3]/div[2]/div[contains(@class, \"iva-item-root\")][{}]/div/div/div/div[2]/div/a/h3", count)
 			).await?;
 
-			let paid = <dyn Feed>::get_paid(driver.clone(),
-				format!("//div[contains(@class, \"items-items\")]/div[contains(@class, \"iva-item-root\")][{}]/div/div/div/div[last()]/div[2]/div/i", count),
-			).await?;
-
 			let _ = <dyn Feed>::move_mouse_to_paid(driver.clone(),
 				format!("//div[contains(@class, \"items-items\")]/div[contains(@class, \"iva-item-root\")][{}]/div/div/div/div[last()]/div[2]/div/i", count),
 			).await?;
@@ -159,12 +154,7 @@ pub async fn vacancies_crawler() -> WebDriverResult<()> {
 				paid_types.push(img);
 			}
 
-			dbg!(paid_types.join(", "));
-
-
-
-			//div[contains(@class, \"styles-entry\")]/i[contains(@class, \"style-vas-icon\")]/img
-			//div[contains(@class, "styles-entry")]/i[contains(@class, "style-vas-icon")]/img
+			let paid = paid_types.join(", ");
 
 			// Переход в новую вкладку
 			let handle = driver.window().await?;
@@ -196,22 +186,17 @@ pub async fn vacancies_crawler() -> WebDriverResult<()> {
 
 			//span[contains(@class, "style-price-value")]
 
-			// let (seller_id, seller_name) = <dyn Ad>::get_seller_name_arr(driver.clone()).await?;
-			// let rating = <dyn Ad>::get_rating(driver.clone()).await?;
-			// let reviews = <dyn Ad>::get_reviews(driver.clone()).await?;
-			// let register_date = <dyn Ad>::get_register_date(driver.clone()).await?;
-			// let seller_ads_count = <dyn Ad>::get_seller_ads_count(driver.clone()).await?;
-			// let description_string = <dyn Ad>::get_description(driver.clone()).await?;
-			// let address = <dyn Ad>::get_address(driver.clone()).await?;
-			// let footer_article = <dyn Ad>::check_footer_article(driver.clone()).await?;
-			// let date = <dyn Ad>::get_date(driver.clone(), footer_article).await?;
-			// let (views, views_today) = <dyn Ad>::get_views_and_views_today(driver.clone(), footer_article).await?;
+			let (seller_id, seller_name) = <dyn AdsAd>::get_seller_name_arr(driver.clone()).await?;
+			// let rating = <dyn AdsAd>::get_rating(driver.clone()).await?;
+			// let reviews = <dyn AdsAd>::get_reviews(driver.clone()).await?;
+			// let register_date = <dyn AdsAd>::get_register_date(driver.clone()).await?;
+			// let seller_ads_count = <dyn AdsAd>::get_seller_ads_count(driver.clone()).await?;
+			let address = <dyn AdsAd>::get_address(driver.clone()).await?;
+			let footer_article = <dyn AdsAd>::check_footer_article(driver.clone()).await?;
+			let date = <dyn AdsAd>::get_date(driver.clone(), footer_article).await?;
+			let (views, views_today) = <dyn AdsAd>::get_views_and_views_today(driver.clone(), footer_article).await?;
+			let description = <dyn AdsAd>::get_description(driver.clone()).await?;
 
-			dbg!(&count);
-			dbg!(&id);
-			dbg!(&href);
-			dbg!(&title);
-			dbg!(&paid);
 			// === RESULT ===
 
 			driver.close_window().await?;
@@ -220,30 +205,23 @@ pub async fn vacancies_crawler() -> WebDriverResult<()> {
 
 			println!("{} из {} - {}", &position, &ads_count.clone(), &id);
 
-			// wtr.write_record(&[
-			// 	format!("{}", utc.format("%d-%m-%Y_%H:%M:%S")).as_str(),
-			// 	position.to_string().as_str(),
-			// 	views.as_str(),
-			// 	views_today.as_str(),
-			// 	paid.to_string().as_str(),
-			// 	date.as_str(),
-			// 	id,
-			// 	title.replace("\"", "").as_str(),
-			// 	href.as_str(),
-			// 	price.as_str(),
-			// 	categories.as_str(),
-			// 	search_query,
-			// 	seller_id.as_str(),
-			// 	seller_name.as_str(),
-			// 	rating.as_str(),
-			// 	reviews.as_str(),
-			// 	register_date.as_str(),
-			// 	seller_ads_count.as_str(),
-			// 	description_string.as_str(),
-			// 	city_query,
-			// 	address.as_str(),
-			// ])
-			// .expect("write record err");
+			wtr.write_record(&[
+				format!("{}", utc.format("%d-%m-%Y_%H:%M:%S")).as_str(),
+				position.to_string().as_str(),
+				views.as_str(),
+				views_today.as_str(),
+				paid.as_str(),
+				date.as_str(),
+				id,
+				title.replace("\"", "").as_str(),
+				href.as_str(),
+				seller_id.as_str(),
+				seller_name.as_str(),
+				city_query,
+				address.as_str(),
+				description.as_str(),
+			])
+			.expect("write record err");
 		}
 
 		let parent = <dyn Feed>::get_feed_parent_block(driver.clone()).await?;

@@ -198,7 +198,7 @@ impl dyn AdsAd {
 		// Описание
 		let description_blocks_arr = match <dyn Crawler>::find_elements(
 			driver.clone(),
-			"//div[contains(@class, \"style-item-description-html\")]/p".to_string(),
+			"//div[contains(@class, \"style-item-description\")]/p".to_string(),
 			"//body/div[1]/div/div[3]/div[1]/div/div[2]/div[3]/div/div[1]/div[2]/div[3]/div/div/p"
 				.to_string(),
 		)
