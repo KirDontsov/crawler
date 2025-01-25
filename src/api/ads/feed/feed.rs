@@ -99,6 +99,47 @@ impl dyn Feed {
 		Ok(paid)
 	}
 
+	pub async fn move_mouse_to_paid(driver: WebDriver, xpath: String) -> Result<(), WebDriverError> {
+		let paid_icon_arr = match <dyn Crawler>::find_elements(driver.clone(), xpath, "".to_string()).await
+		{
+			Ok(res) => res,
+			Err(e) => {
+				println!("error while searching seller_name block: {}", e);
+				driver.clone().quit().await?;
+				Vec::new()
+			}
+		};
+
+		let paid_icon = paid_icon_arr.get(0).expect("no paid_icon");
+
+		driver
+			.action_chain()
+			.move_to_element_center(&paid_icon)
+			.perform()
+			.await?;
+
+		Ok(())
+	}
+
+	pub async fn get_paid_imgs(
+		driver: WebDriver,
+		xpath: String,
+		xpath2: String,
+	) -> Result<Vec<WebElement>, WebDriverError> {
+		let imgs_arr =
+			match <dyn Crawler>::find_elements(driver.clone(), xpath, xpath2).await
+			{
+				Ok(elem) => elem,
+				Err(e) => {
+					println!("error while searching href block: {}", e);
+					driver.clone().quit().await?;
+					Vec::new()
+				}
+			};
+
+		Ok(imgs_arr)
+	}
+
 	pub async fn get_feed_parent_block(driver: WebDriver) -> Result<WebElement, WebDriverError> {
 		let main_arr = match <dyn Crawler>::find_elements(
 			driver.clone(),
@@ -117,6 +158,28 @@ impl dyn Feed {
 		let parent = main_arr.get(0).expect("no parent");
 
 		Ok(parent.to_owned())
+	}
+
+	pub async fn get_paid_img(
+		driver: WebDriver,
+		xpath: String,
+		xpath2: String,
+	) -> Result<String, WebDriverError> {
+		let img_src_full =
+			match <dyn Crawler>::find_attr(driver.clone(), xpath, xpath2, "src".to_string()).await
+			{
+				Ok(elem) => elem,
+				Err(e) => {
+					println!("error while searching href block: {}", e);
+					driver.clone().quit().await?;
+					"".to_string()
+				}
+			};
+
+		let img_src_arr = img_src_full.split("/").collect::<Vec<&str>>();
+		let img_src_str = img_src_arr.last().expect("no img src");
+
+		Ok(img_src_str.to_owned().to_string())
 	}
 
 	pub async fn click_ad_title_link(

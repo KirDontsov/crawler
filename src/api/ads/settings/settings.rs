@@ -166,7 +166,6 @@ impl dyn Settings {
 		vacancies: bool,
 	) -> Result<(), WebDriverError> {
 		if select_suggest {
-			//*[text()[contains(.,'← Вакансии')]]
 			let suggest_arr;
 
 			if !vacancies {
