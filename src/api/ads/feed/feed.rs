@@ -110,13 +110,17 @@ impl dyn Feed {
 			}
 		};
 
-		let paid_icon = paid_icon_arr.get(0).expect("no paid_icon");
 
-		driver
-			.action_chain()
-			.move_to_element_center(&paid_icon)
-			.perform()
-			.await?;
+
+		if paid_icon_arr.len() != 0 {
+			let paid_icon = paid_icon_arr.get(0).expect("no paid_icon");
+
+			driver
+				.action_chain()
+				.move_to_element_center(&paid_icon)
+				.perform()
+				.await?;
+		}
 
 		Ok(())
 	}
@@ -179,7 +183,7 @@ impl dyn Feed {
 		let img_src_arr = img_src_full.split("/").collect::<Vec<&str>>();
 		let img_src_str = img_src_arr.last().expect("no img src");
 
-		Ok(img_src_str.to_owned().to_string())
+		Ok(img_src_str.replace(".svg", "").to_owned().to_string())
 	}
 
 	pub async fn click_ad_title_link(
