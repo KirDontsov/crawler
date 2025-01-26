@@ -80,15 +80,17 @@ impl dyn Crawler {
 		};
 
 		if el_exists {
-			let elem = driver
+			let elem = match driver
 				.query(By::XPath(&xpath))
 				.or(By::XPath(&xpath2))
 				.nowait()
 				.first()
 				.await?
 				.attr(attr)
-				.await?
-				.expect("no href");
+				.await? {
+					Some(x) => x,
+					None => "".to_string()
+				};
 
 			Ok(elem)
 		} else {

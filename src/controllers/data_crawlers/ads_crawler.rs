@@ -138,7 +138,7 @@ pub async fn ads_crawler() -> WebDriverResult<()> {
 			).await?;
 
 			let price = <dyn Feed>::get_price(driver.clone(),
-				format!("//div[contains(@class, \"items-items\")]/div[contains(@class, \"iva-item-root\")][{}]/div/div/div[2]/div[3]/span/div/p/meta[2]", count),
+				format!("//div[contains(@class, \"items-items\")]/div[contains(@class, \"iva-item-root\")][{}]/div/div/div[2]/div[3]/span/div/div/p/meta[2]", count),
 				format!("//body/div[1]/div/buyer-location/div/div/div[2]/div/div[2]/div[3]/div[3]/div[3]/div[2]/div[contains(@class, \"iva-item-root\")][{}]/div/div/div[2]/div[3]/span/div/p/meta[2]", count)
 			).await?;
 
@@ -191,6 +191,8 @@ pub async fn ads_crawler() -> WebDriverResult<()> {
 			}
 
 			let (seller_id, seller_name) = <dyn AdsAd>::get_seller_name_arr(driver.clone()).await?;
+			let seller_type = <dyn AdsAd>::get_seller_type(driver.clone()).await?;
+			let answer_time = <dyn AdsAd>::get_answer_time(driver.clone()).await?;
 			let rating = <dyn AdsAd>::get_rating(driver.clone()).await?;
 			let reviews = <dyn AdsAd>::get_reviews(driver.clone()).await?;
 			let register_date = <dyn AdsAd>::get_register_date(driver.clone()).await?;
@@ -224,6 +226,8 @@ pub async fn ads_crawler() -> WebDriverResult<()> {
 				search_query,
 				seller_id.as_str(),
 				seller_name.as_str(),
+				seller_type.as_str(),
+				answer_time.as_str(),
 				rating.as_str(),
 				reviews.as_str(),
 				register_date.as_str(),

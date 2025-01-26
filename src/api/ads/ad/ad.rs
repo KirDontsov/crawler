@@ -49,6 +49,54 @@ impl dyn AdsAd {
 		Ok((seller_id.to_string(), seller_name))
 	}
 
+	pub async fn get_answer_time(driver: WebDriver) -> Result<String, WebDriverError> {
+		let rating_arr = match <dyn Crawler>::find_elements(
+			driver.clone(),
+			"//div[contains(@class, \"messenger-button-buttonText\")]/div".to_string(),
+			"//body/div[1]/div/div[3]/div[1]/div/div[2]/div[3]/div/div[2]/div[1]/div/div/div[3]/div[1]/div/div/div[2]/div/div/div/a/div/div".to_string(),
+		)
+		.await
+		{
+			Ok(res) => res,
+			Err(e) => {
+				println!("error while searching rating block: {}", e);
+				driver.clone().quit().await?;
+				Vec::new()
+			}
+		};
+
+		let rating = match rating_arr.get(0) {
+			Some(x) => x.text().await?,
+			None => "".to_string(),
+		};
+
+		Ok(rating)
+	}
+
+	pub async fn get_seller_type(driver: WebDriver) -> Result<String, WebDriverError> {
+		let rating_arr = match <dyn Crawler>::find_elements(
+			driver.clone(),
+			"//div[contains(@class, \"style-seller-info-col\")]/div[2]".to_string(),
+			"//body/div[1]/div/div[3]/div[1]/div/div[2]/div[3]/div/div[2]/div[1]/div/div/div[3]/div[2]/div/div/div/div[1]/div/div[1]/div[2]".to_string(),
+		)
+		.await
+		{
+			Ok(res) => res,
+			Err(e) => {
+				println!("error while searching rating block: {}", e);
+				driver.clone().quit().await?;
+				Vec::new()
+			}
+		};
+
+		let rating = match rating_arr.get(0) {
+			Some(x) => x.text().await?,
+			None => "".to_string(),
+		};
+
+		Ok(rating)
+	}
+
 	pub async fn get_rating(driver: WebDriver) -> Result<String, WebDriverError> {
 		let rating_arr = match <dyn Crawler>::find_elements(
 			driver.clone(),
@@ -106,7 +154,7 @@ impl dyn AdsAd {
 		// проверяем есть ли рекламное объявление
 		let seller_info_redesign = match <dyn Crawler>::check_if_block_exists(driver.clone(),
 			"//div[contains(@class, \"style-sellerInfoColRedesign\")]".to_string(),
-			"//body/div[1]/div/div[3]/div[1]/div/div[2]/div[3]/div/div[2]/div/div/div/div[3]/div[2]/div/div/div/div[1]/div/div[1]".to_string()
+			"".to_string()
 		).await {
 			Ok(elem) => elem,
 			Err(e) => {
