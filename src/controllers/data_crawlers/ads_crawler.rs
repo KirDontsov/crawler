@@ -22,7 +22,7 @@ pub async fn ads_crawler() -> WebDriverResult<()> {
 
 	let mut wtr = Writer::from_path(format!(
 		"./output/ads_{}_{}_{}.csv",
-		utc.format("%d-%m-%Y_%H:%M:%S"),
+		utc.format("%d-%m-%Y_%H-%M-%S"),
 		search_query.replace(" ", "_"),
 		city_query.replace(" ", "_")
 	))
@@ -220,17 +220,17 @@ pub async fn ads_crawler() -> WebDriverResult<()> {
 				date.as_str(),
 				id,
 				title.replace("\"", "").as_str(),
-				href.as_str(),
 				price.as_str(),
+				href.as_str(),
 				categories.as_str(),
 				search_query,
 				seller_id.as_str(),
 				seller_name.as_str(),
 				seller_type.as_str(),
+				register_date.as_str(),
 				answer_time.as_str(),
 				rating.as_str(),
 				reviews.as_str(),
-				register_date.as_str(),
 				seller_ads_count.as_str(),
 				city_query,
 				address.as_str(),

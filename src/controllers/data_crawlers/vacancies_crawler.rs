@@ -21,7 +21,7 @@ pub async fn vacancies_crawler() -> WebDriverResult<()> {
 
 	let mut wtr = Writer::from_path(format!(
 		"./output/vacancies_{}_{}_{}.csv",
-		utc.format("%d-%m-%Y_%H:%M:%S"),
+		utc.format("%d-%m-%Y_%H-%M-%S"),
 		search_query.replace(" ", "_"),
 		city_query.replace(" ", "_")
 	))
