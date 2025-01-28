@@ -159,7 +159,7 @@ impl dyn Settings {
 
 		Ok(())
 	}
-//← Вакансии
+	//← Вакансии
 	pub async fn select_search_suggest(
 		driver: WebDriver,
 		select_suggest: bool,

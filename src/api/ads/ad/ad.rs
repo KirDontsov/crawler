@@ -152,10 +152,13 @@ impl dyn AdsAd {
 
 	pub async fn get_register_date(driver: WebDriver) -> Result<String, WebDriverError> {
 		// проверяем есть ли рекламное объявление
-		let seller_info_redesign = match <dyn Crawler>::check_if_block_exists(driver.clone(),
+		let seller_info_redesign = match <dyn Crawler>::check_if_block_exists(
+			driver.clone(),
 			"//div[contains(@class, \"style-sellerInfoColRedesign\")]".to_string(),
-			"".to_string()
-		).await {
+			"".to_string(),
+		)
+		.await
+		{
 			Ok(elem) => elem,
 			Err(e) => {
 				println!("error while searching ads_banner_arr block: {}", e);
@@ -327,10 +330,13 @@ impl dyn AdsAd {
 	}
 
 	pub async fn check_footer_article(driver: WebDriver) -> Result<bool, WebDriverError> {
-		let footer_article = match <dyn Crawler>::check_if_block_exists(driver.clone(),
+		let footer_article = match <dyn Crawler>::check_if_block_exists(
+			driver.clone(),
 			"//article[contains(@class, \"style-item-footer-text\")]".to_string(),
-			"".to_string()
-		).await {
+			"".to_string(),
+		)
+		.await
+		{
 			Ok(elem) => elem,
 			Err(e) => {
 				println!("error while searching ads_banner_arr block: {}", e);

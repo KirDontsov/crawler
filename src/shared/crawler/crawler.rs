@@ -87,10 +87,11 @@ impl dyn Crawler {
 				.first()
 				.await?
 				.attr(attr)
-				.await? {
-					Some(x) => x,
-					None => "".to_string()
-				};
+				.await?
+			{
+				Some(x) => x,
+				None => "".to_string(),
+			};
 
 			Ok(elem)
 		} else {

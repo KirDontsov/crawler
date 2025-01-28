@@ -84,18 +84,19 @@ impl dyn Feed {
 		Ok(price)
 	}
 
-	pub async fn move_mouse_to_paid(driver: WebDriver, xpath: String) -> Result<(), WebDriverError> {
-		let paid_icon_arr = match <dyn Crawler>::find_elements(driver.clone(), xpath, "".to_string()).await
-		{
-			Ok(res) => res,
-			Err(e) => {
-				println!("error while searching seller_name block: {}", e);
-				driver.clone().quit().await?;
-				Vec::new()
-			}
-		};
-
-
+	pub async fn move_mouse_to_paid(
+		driver: WebDriver,
+		xpath: String,
+	) -> Result<(), WebDriverError> {
+		let paid_icon_arr =
+			match <dyn Crawler>::find_elements(driver.clone(), xpath, "".to_string()).await {
+				Ok(res) => res,
+				Err(e) => {
+					println!("error while searching seller_name block: {}", e);
+					driver.clone().quit().await?;
+					Vec::new()
+				}
+			};
 
 		if paid_icon_arr.len() != 0 {
 			let paid_icon = paid_icon_arr.get(0).expect("no paid_icon");
@@ -115,16 +116,14 @@ impl dyn Feed {
 		xpath: String,
 		xpath2: String,
 	) -> Result<Vec<WebElement>, WebDriverError> {
-		let imgs_arr =
-			match <dyn Crawler>::find_elements(driver.clone(), xpath, xpath2).await
-			{
-				Ok(elem) => elem,
-				Err(e) => {
-					println!("error while searching href block: {}", e);
-					driver.clone().quit().await?;
-					Vec::new()
-				}
-			};
+		let imgs_arr = match <dyn Crawler>::find_elements(driver.clone(), xpath, xpath2).await {
+			Ok(elem) => elem,
+			Err(e) => {
+				println!("error while searching href block: {}", e);
+				driver.clone().quit().await?;
+				Vec::new()
+			}
+		};
 
 		Ok(imgs_arr)
 	}
@@ -154,16 +153,21 @@ impl dyn Feed {
 		xpath: String,
 		xpath2: String,
 	) -> Result<String, WebDriverError> {
-		let img_src_full =
-			match <dyn Crawler>::find_attr(driver.clone(), xpath, xpath2, "src".to_string()).await
-			{
-				Ok(elem) => elem,
-				Err(e) => {
-					println!("error while searching href block: {}", e);
-					driver.clone().quit().await?;
-					"".to_string()
-				}
-			};
+		let img_src_full = match <dyn Crawler>::find_attr(
+			driver.clone(),
+			xpath,
+			xpath2,
+			"src".to_string(),
+		)
+		.await
+		{
+			Ok(elem) => elem,
+			Err(e) => {
+				println!("error while searching href block: {}", e);
+				driver.clone().quit().await?;
+				"".to_string()
+			}
+		};
 
 		let img_src_arr = img_src_full.split("/").collect::<Vec<&str>>();
 		let img_src_str = img_src_arr.last().expect("no img src");

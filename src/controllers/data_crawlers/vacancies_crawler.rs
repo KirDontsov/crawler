@@ -4,8 +4,8 @@ use std::env;
 use thirtyfour::prelude::*;
 use tokio::time::{sleep, Duration};
 
-use crate::api::{Header, Feed, Settings, AdsAd};
-use crate::shared::{Driver, Firewall, Constants, Crawler};
+use crate::api::{AdsAd, Feed, Header, Settings};
+use crate::shared::{Constants, Crawler, Driver, Firewall};
 
 #[allow(unreachable_code)]
 pub async fn vacancies_crawler() -> WebDriverResult<()> {
@@ -50,7 +50,7 @@ pub async fn vacancies_crawler() -> WebDriverResult<()> {
 	let _ = <dyn Settings>::select_search_suggest(
 		driver.clone(),
 		select_suggest.parse().unwrap_or(true),
-		true
+		true,
 	)
 	.await?;
 
@@ -194,7 +194,8 @@ pub async fn vacancies_crawler() -> WebDriverResult<()> {
 			let address = <dyn AdsAd>::get_address(driver.clone()).await?;
 			let footer_article = <dyn AdsAd>::check_footer_article(driver.clone()).await?;
 			let date = <dyn AdsAd>::get_date(driver.clone(), footer_article).await?;
-			let (views, views_today) = <dyn AdsAd>::get_views_and_views_today(driver.clone(), footer_article).await?;
+			let (views, views_today) =
+				<dyn AdsAd>::get_views_and_views_today(driver.clone(), footer_article).await?;
 			let description = <dyn AdsAd>::get_description(driver.clone()).await?;
 
 			// === RESULT ===

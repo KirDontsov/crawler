@@ -4,9 +4,9 @@ use std::env;
 use thirtyfour::prelude::*;
 use tokio::time::{sleep, Duration};
 
-use crate::api::{AdsAd, Header, Settings};
 use crate::api::Feed;
-use crate::shared::{Driver, Firewall, Crawler, Constants};
+use crate::api::{AdsAd, Header, Settings};
+use crate::shared::{Constants, Crawler, Driver, Firewall};
 
 #[allow(unreachable_code)]
 pub async fn ads_crawler() -> WebDriverResult<()> {
@@ -19,7 +19,11 @@ pub async fn ads_crawler() -> WebDriverResult<()> {
 	let fullscreen_mode = env::var("FULLSCREEN_MODE").expect("FULLSCREEN_MODE not set");
 	let accaunts_to_check_str = env::var("ACCAUNTS_TO_CHECK").expect("ACCAUNTS_TO_CHECK not set");
 
-	let accaunts_to_check = accaunts_to_check_str.split(" ").collect::<Vec<&str>>();
+	let accaunts_to_check = if accaunts_to_check_str != "" {
+		accaunts_to_check_str.split(" ").collect::<Vec<&str>>()
+	} else {
+		Vec::new()
+	};
 
 	let utc: DateTime<Utc> = Utc::now() + chrono::Duration::try_hours(3).expect("hours err");
 
@@ -54,7 +58,7 @@ pub async fn ads_crawler() -> WebDriverResult<()> {
 	let _ = <dyn Settings>::select_search_suggest(
 		driver.clone(),
 		select_suggest.parse().unwrap_or(true),
-		false
+		false,
 	)
 	.await?;
 
@@ -200,12 +204,14 @@ pub async fn ads_crawler() -> WebDriverResult<()> {
 			let reviews = <dyn AdsAd>::get_reviews(driver.clone()).await?;
 			let register_date = <dyn AdsAd>::get_register_date(driver.clone()).await?;
 			let seller_ads_count = <dyn AdsAd>::get_seller_ads_count(driver.clone()).await?;
-			let seller_closed_ads_count = <dyn AdsAd>::get_seller_closed_ads_count(driver.clone()).await?;
+			let seller_closed_ads_count =
+				<dyn AdsAd>::get_seller_closed_ads_count(driver.clone()).await?;
 			let description_string = <dyn AdsAd>::get_description(driver.clone()).await?;
 			let address = <dyn AdsAd>::get_address(driver.clone()).await?;
 			let footer_article = <dyn AdsAd>::check_footer_article(driver.clone()).await?;
 			let date = <dyn AdsAd>::get_date(driver.clone(), footer_article).await?;
-			let (views, views_today) = <dyn AdsAd>::get_views_and_views_today(driver.clone(), footer_article).await?;
+			let (views, views_today) =
+				<dyn AdsAd>::get_views_and_views_today(driver.clone(), footer_article).await?;
 
 			// === RESULT ===
 
@@ -215,15 +221,23 @@ pub async fn ads_crawler() -> WebDriverResult<()> {
 
 			let mut my_ads = "";
 
-			for account in &accaunts_to_check {
-				if seller_id.contains(account) {
-					my_ads = "*";
-				} else {
-					my_ads ="";
-				};
+			if accaunts_to_check.len() > 0 {
+				for account in &accaunts_to_check {
+					if seller_id.contains(account) {
+						my_ads = "*";
+					} else {
+						my_ads = "";
+					};
+				}
 			}
 
-			println!("{} из {} - {}{}", &position, &ads_count.clone(), &id, &my_ads);
+			println!(
+				"{} из {} - {} {}",
+				&position,
+				&ads_count.clone(),
+				&id,
+				&my_ads
+			);
 
 			wtr.write_record(&[
 				my_ads,
