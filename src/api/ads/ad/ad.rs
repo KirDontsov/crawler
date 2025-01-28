@@ -74,27 +74,27 @@ impl dyn AdsAd {
 	}
 
 	pub async fn get_seller_type(driver: WebDriver) -> Result<String, WebDriverError> {
-		let rating_arr = match <dyn Crawler>::find_elements(
+		let seller_type_arr = match <dyn Crawler>::find_elements(
 			driver.clone(),
-			"//div[contains(@class, \"style-seller-info-col\")]/div[2]".to_string(),
+			"//div[contains(@class, \"style-seller-info-col\")]//*[@data-marker=\"seller-info/label\"]".to_string(),
 			"//body/div[1]/div/div[3]/div[1]/div/div[2]/div[3]/div/div[2]/div[1]/div/div/div[3]/div[2]/div/div/div/div[1]/div/div[1]/div[2]".to_string(),
 		)
 		.await
 		{
 			Ok(res) => res,
 			Err(e) => {
-				println!("error while searching rating block: {}", e);
+				println!("error while searching seller_type block: {}", e);
 				driver.clone().quit().await?;
 				Vec::new()
 			}
 		};
 
-		let rating = match rating_arr.get(0) {
+		let seller_type = match seller_type_arr.get(0) {
 			Some(x) => x.text().await?,
 			None => "".to_string(),
 		};
 
-		Ok(rating)
+		Ok(seller_type.replace("·", "").replace("  ", ""))
 	}
 
 	pub async fn get_rating(driver: WebDriver) -> Result<String, WebDriverError> {
@@ -242,6 +242,36 @@ impl dyn AdsAd {
 		Ok(seller_ads_count)
 	}
 
+	pub async fn get_seller_closed_ads_count(driver: WebDriver) -> Result<String, WebDriverError> {
+		let seller_ads_count_arr = match <dyn Crawler>::find_elements(
+			driver.clone(),
+			"//div[contains(@class, \"style-seller-info-col\")]/div[last()]".to_string(),
+			"//body/div[1]/div/div[3]/div[1]/div/div[2]/div[3]/div/div[2]/div/div/div/div[3]/div[2]/div/div/div/div[1]/div/div[1]/div[2]".to_string(),
+		)
+		.await
+		{
+			Ok(res) => res,
+			Err(e) => {
+				println!("error while searching seller_ads_count block: {}", e);
+				Vec::new()
+			}
+		};
+
+		let seller_ads_count = match seller_ads_count_arr.get(0) {
+			Some(x) => x
+				.text()
+				.await?
+				.replace("пользователя", "")
+				.replace("объявление", "")
+				.replace("объявления", "")
+				.replace("объявлений", "")
+				.replace(" ", ""),
+			None => "".to_string(),
+		};
+
+		Ok(seller_ads_count)
+	}
+
 	pub async fn get_description(driver: WebDriver) -> Result<String, WebDriverError> {
 		// Описание
 		let description_blocks_arr = match <dyn Crawler>::find_elements(
@@ -299,7 +329,7 @@ impl dyn AdsAd {
 	pub async fn check_footer_article(driver: WebDriver) -> Result<bool, WebDriverError> {
 		let footer_article = match <dyn Crawler>::check_if_block_exists(driver.clone(),
 			"//article[contains(@class, \"style-item-footer-text\")]".to_string(),
-			"//body/div[1]/div/div[3]/div[1]/div/div[2]/div[3]/div/div[1]/div[1]/div[5]/div/div/div[1]/article".to_string()
+			"".to_string()
 		).await {
 			Ok(elem) => elem,
 			Err(e) => {

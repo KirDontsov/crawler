@@ -17,6 +17,9 @@ pub async fn ads_crawler() -> WebDriverResult<()> {
 	let url = env::var("URL_QUERY").expect("URL_QUERY not set");
 	let select_suggest = env::var("SELECT_SUGGEST").expect("SELECT_SUGGEST not set");
 	let fullscreen_mode = env::var("FULLSCREEN_MODE").expect("FULLSCREEN_MODE not set");
+	let accaunts_to_check_str = env::var("ACCAUNTS_TO_CHECK").expect("ACCAUNTS_TO_CHECK not set");
+
+	let accaunts_to_check = accaunts_to_check_str.split(" ").collect::<Vec<&str>>();
 
 	let utc: DateTime<Utc> = Utc::now() + chrono::Duration::try_hours(3).expect("hours err");
 
@@ -197,6 +200,7 @@ pub async fn ads_crawler() -> WebDriverResult<()> {
 			let reviews = <dyn AdsAd>::get_reviews(driver.clone()).await?;
 			let register_date = <dyn AdsAd>::get_register_date(driver.clone()).await?;
 			let seller_ads_count = <dyn AdsAd>::get_seller_ads_count(driver.clone()).await?;
+			let seller_closed_ads_count = <dyn AdsAd>::get_seller_closed_ads_count(driver.clone()).await?;
 			let description_string = <dyn AdsAd>::get_description(driver.clone()).await?;
 			let address = <dyn AdsAd>::get_address(driver.clone()).await?;
 			let footer_article = <dyn AdsAd>::check_footer_article(driver.clone()).await?;
@@ -209,9 +213,20 @@ pub async fn ads_crawler() -> WebDriverResult<()> {
 			driver.switch_to_window(handle.clone()).await?;
 			sleep(Duration::from_secs(2)).await;
 
-			println!("{} из {} - {}", &position, &ads_count.clone(), &id);
+			let mut my_ads = "";
+
+			for account in &accaunts_to_check {
+				if seller_id.contains(account) {
+					my_ads = "*";
+				} else {
+					my_ads ="";
+				};
+			}
+
+			println!("{} из {} - {}{}", &position, &ads_count.clone(), &id, &my_ads);
 
 			wtr.write_record(&[
+				my_ads,
 				format!("{}", utc.format("%d-%m-%Y_%H:%M:%S")).as_str(),
 				position.to_string().as_str(),
 				views.as_str(),
@@ -232,6 +247,7 @@ pub async fn ads_crawler() -> WebDriverResult<()> {
 				rating.as_str(),
 				reviews.as_str(),
 				seller_ads_count.as_str(),
+				seller_closed_ads_count.as_str(),
 				city_query,
 				address.as_str(),
 				description_string.as_str(),
