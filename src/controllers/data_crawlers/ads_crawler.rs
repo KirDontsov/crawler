@@ -17,7 +17,7 @@ pub async fn ads_crawler() -> WebDriverResult<()> {
 	let url = env::var("URL_QUERY").expect("URL_QUERY not set");
 	let select_suggest = env::var("SELECT_SUGGEST").expect("SELECT_SUGGEST not set");
 	let fullscreen_mode = env::var("FULLSCREEN_MODE").expect("FULLSCREEN_MODE not set");
-	let accaunts_to_check_str = env::var("ACCAUNTS_TO_CHECK").expect("ACCAUNTS_TO_CHECK not set");
+	let accaunts_to_check_str = env::var("ACCAUNTS_TO_CHECK").unwrap_or("".to_string());
 
 	let accaunts_to_check = if accaunts_to_check_str != "" {
 		accaunts_to_check_str.split(" ").collect::<Vec<&str>>()
