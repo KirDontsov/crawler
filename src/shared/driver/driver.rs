@@ -33,6 +33,10 @@ impl dyn Driver {
 		let _ = caps.add_arg("--disable-extensions");
 		let _ = caps.add_arg("--dns-prefetch-disable");
 		let _ = caps.add_arg("--disable-gpu");
+		let _ = caps.add_arg("--disable-background-mode");
+		let _ = caps.add_arg("--disable-sync");
+		let _ = caps.add_arg("--disable-translate");
+		let _ = caps.add_arg("--disable-plugins");
 		let _ = caps.add_arg("--purge-memory-button");
 		let _ = caps.add_arg("enable-features=NetworkServiceInProcess");
 

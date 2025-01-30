@@ -272,7 +272,13 @@ impl dyn AdsAd {
 			None => "".to_string(),
 		};
 
-		Ok(seller_ads_count)
+		let res = if seller_ads_count.contains("Завершено") {
+			seller_ads_count.replace("Завершено", "")
+		} else {
+			"".to_string()
+		};
+
+		Ok(res)
 	}
 
 	pub async fn get_description(driver: WebDriver) -> Result<String, WebDriverError> {
