@@ -225,8 +225,6 @@ pub async fn ads_crawler() -> WebDriverResult<()> {
 				for account in &accaunts_to_check {
 					if seller_id.contains(account) {
 						my_ads = "*";
-					} else {
-						my_ads = "";
 					};
 				}
 			}
