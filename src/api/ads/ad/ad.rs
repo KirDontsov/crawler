@@ -17,8 +17,7 @@ impl dyn AdsAd {
 		{
 			Ok(res) => res,
 			Err(e) => {
-				println!("error while searching seller_name block: {}", e);
-				driver.clone().quit().await?;
+				println!("error while searching seller_name block: {}", e);				
 				Vec::new()
 			}
 		};
@@ -59,8 +58,7 @@ impl dyn AdsAd {
 		{
 			Ok(res) => res,
 			Err(e) => {
-				println!("error while searching rating block: {}", e);
-				driver.clone().quit().await?;
+				println!("error while searching rating block: {}", e);				
 				Vec::new()
 			}
 		};
@@ -83,8 +81,7 @@ impl dyn AdsAd {
 		{
 			Ok(res) => res,
 			Err(e) => {
-				println!("error while searching seller_type block: {}", e);
-				driver.clone().quit().await?;
+				println!("error while searching seller_type block: {}", e);				
 				Vec::new()
 			}
 		};
@@ -107,8 +104,7 @@ impl dyn AdsAd {
 		{
 			Ok(res) => res,
 			Err(e) => {
-				println!("error while searching rating block: {}", e);
-				driver.clone().quit().await?;
+				println!("error while searching rating block: {}", e);				
 				Vec::new()
 			}
 		};

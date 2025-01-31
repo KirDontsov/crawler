@@ -18,7 +18,6 @@ impl dyn Crawler {
 			Ok(elem) => elem,
 			Err(e) => {
 				println!("error while searching ads_banner_arr block: {}", e);
-				driver.clone().quit().await?;
 				false
 			}
 		};
@@ -74,7 +73,6 @@ impl dyn Crawler {
 			Ok(elem) => elem,
 			Err(e) => {
 				println!("error while searching find_text block: {}", e);
-				driver.clone().quit().await?;
 				false
 			}
 		};
@@ -114,7 +112,6 @@ impl dyn Crawler {
 			Ok(elem) => elem,
 			Err(e) => {
 				println!("error while searching find_text block: {}", e);
-				driver.clone().quit().await?;
 				false
 			}
 		};

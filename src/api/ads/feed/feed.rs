@@ -17,7 +17,6 @@ impl dyn Feed {
 			Ok(res) => res,
 			Err(e) => {
 				println!("error while searching blocks block: {}", e);
-				driver.clone().quit().await?;
 				Vec::new()
 			}
 		};
@@ -36,7 +35,6 @@ impl dyn Feed {
 				Ok(elem) => elem,
 				Err(e) => {
 					println!("error while searching href block: {}", e);
-					driver.clone().quit().await?;
 					"".to_string()
 				}
 			};
@@ -56,7 +54,6 @@ impl dyn Feed {
 			Ok(elem) => elem,
 			Err(e) => {
 				println!("error while searching href block: {}", e);
-				driver.clone().quit().await?;
 				"".to_string()
 			}
 		};
@@ -76,7 +73,6 @@ impl dyn Feed {
 				Ok(elem) => elem,
 				Err(e) => {
 					println!("error while searching price_block block: {}", e);
-					driver.clone().quit().await?;
 					"".to_string()
 				}
 			};
@@ -93,7 +89,6 @@ impl dyn Feed {
 				Ok(res) => res,
 				Err(e) => {
 					println!("error while searching seller_name block: {}", e);
-					driver.clone().quit().await?;
 					Vec::new()
 				}
 			};
@@ -120,7 +115,6 @@ impl dyn Feed {
 			Ok(elem) => elem,
 			Err(e) => {
 				println!("error while searching href block: {}", e);
-				driver.clone().quit().await?;
 				Vec::new()
 			}
 		};
@@ -164,7 +158,6 @@ impl dyn Feed {
 			Ok(elem) => elem,
 			Err(e) => {
 				println!("error while searching href block: {}", e);
-				driver.clone().quit().await?;
 				"".to_string()
 			}
 		};
@@ -185,7 +178,6 @@ impl dyn Feed {
 			Ok(res) => res,
 			Err(e) => {
 				println!("error while searching seller_name block: {}", e);
-				driver.clone().quit().await?;
 				Vec::new()
 			}
 		};
@@ -213,7 +205,6 @@ impl dyn Feed {
 			Ok(elem) => elem,
 			Err(e) => {
 				println!("error while searching button_arr block: {}", e);
-				driver.clone().quit().await?;
 				Vec::new()
 			}
 		};

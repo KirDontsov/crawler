@@ -110,8 +110,7 @@ pub async fn vacancies_crawler() -> WebDriverResult<()> {
 			{
 				Ok(elem) => elem,
 				Err(e) => {
-					println!("error while searching ads_banner_arr block: {}", e);
-					driver.clone().quit().await?;
+					println!("error while searching ads_banner_arr block: {}", e);					
 					false
 				}
 			};
@@ -228,8 +227,7 @@ pub async fn vacancies_crawler() -> WebDriverResult<()> {
 		let parent = <dyn Feed>::get_feed_parent_block(driver.clone()).await?;
 
 		if parent.inner_html().await?.contains("других городов") {
-			println!("====== break ======");
-			driver.clone().quit().await?;
+			println!("====== break ======");			
 			break 'outer;
 		}
 
@@ -239,8 +237,7 @@ pub async fn vacancies_crawler() -> WebDriverResult<()> {
 		println!("{}", "======");
 	}
 
-	wtr.flush()?;
-	driver.clone().quit().await?;
+	wtr.flush()?;	
 
 	Ok(())
 }
