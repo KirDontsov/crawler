@@ -16,6 +16,14 @@ pub async fn vacancies_crawler() -> WebDriverResult<()> {
 	let url = env::var("URL_QUERY").expect("URL_QUERY not set");
 	let select_suggest = env::var("SELECT_SUGGEST").expect("SELECT_SUGGEST not set");
 	let fullscreen_mode = env::var("FULLSCREEN_MODE").expect("FULLSCREEN_MODE not set");
+	let ads_to_check_str = env::var("ADS_TO_CHECK").unwrap_or("".to_string());
+	let visit_ads_page = env::var("VISIT_ADS_PAGE").expect("VISIT_ADS_PAGE not set");
+
+	let ads_to_check = if ads_to_check_str != "" {
+		ads_to_check_str.split(" ").collect::<Vec<&str>>()
+	} else {
+		Vec::new()
+	};
 
 	let utc: DateTime<Utc> = Utc::now() + chrono::Duration::try_hours(3).expect("hours err");
 
@@ -54,7 +62,7 @@ pub async fn vacancies_crawler() -> WebDriverResult<()> {
 	)
 	.await?;
 
-	// let categories = <dyn Header>::get_categories(driver.clone()).await?;
+	let categories = <dyn Header>::get_categories(driver.clone()).await?;
 	let ads_count = <dyn Header>::get_ads_count(driver.clone()).await?;
 
 	println!("Start {}", utc.format("%d-%m-%Y_%H:%M:%S"));
@@ -89,6 +97,11 @@ pub async fn vacancies_crawler() -> WebDriverResult<()> {
 
 		let blocks = <dyn Feed>::get_feed(driver.clone()).await?;
 
+		if blocks.len() == 0 {
+			println!("====== break ======");
+			break 'outer;
+		}
+
 		let last = blocks.last().expect("no blocks");
 		last.scroll_into_view().await?;
 
@@ -110,7 +123,7 @@ pub async fn vacancies_crawler() -> WebDriverResult<()> {
 			{
 				Ok(elem) => elem,
 				Err(e) => {
-					println!("error while searching ads_banner_arr block: {}", e);					
+					println!("error while searching ads_banner_arr block: {}", e);
 					false
 				}
 			};
@@ -135,6 +148,11 @@ pub async fn vacancies_crawler() -> WebDriverResult<()> {
 				format!("//body/div[1]/div/buyer-location/div/div/div[2]/div/div[2]/div[3]/div[3]/div[3]/div[2]/div[contains(@class, \"iva-item-root\")][{}]/div/div/div/div[2]/div/a/h3", count)
 			).await?;
 
+			let price = <dyn Feed>::get_price(driver.clone(),
+				format!("//div[contains(@class, \"items-items\")]/div[contains(@class, \"iva-item-root\")][{}]//*[@data-marker=\"item-price\"]/meta[2]", count),
+				format!("//body/div[1]/div/buyer-location/div/div/div[2]/div/div[2]/div[3]/div[3]/div[3]/div[2]/div[contains(@class, \"iva-item-root\")][{}]/div/div/div[2]/div[3]/span/div/p/meta[2]", count)
+			).await?;
+
 			let _ = <dyn Feed>::move_mouse_to_paid(driver.clone(),
 				format!("//div[contains(@class, \"items-items\")]/div[contains(@class, \"iva-item-root\")][{}]/div/div/div/div[last()]/div[2]/div/i", count),
 			).await?;
@@ -155,79 +173,151 @@ pub async fn vacancies_crawler() -> WebDriverResult<()> {
 
 			let paid = paid_types.join(", ");
 
-			// Переход в новую вкладку
-			let handle = driver.window().await?;
+			if !visit_ads_page.parse::<bool>().unwrap() {
+				let mut my_ads = "";
 
-			let _ = <dyn Feed>::click_ad_title_link(driver.clone(),
-				format!("//div[contains(@class, \"items-items\")]/div[contains(@class, \"iva-item-root\")][{}]/div/div/div/div[2]/div/a", count),
-				format!("//body/div[1]/div/buyer-location/div/div/div[2]/div/div[2]/div[3]/div[3]/div[3]/div[2]/div[contains(@class, \"iva-item-root\")][{}]/div/div/div/div[2]/div/a", count)
-			).await?;
-
-			let handles = driver.windows().await?;
-			driver.switch_to_window(handles[1].clone()).await?;
-			sleep(Duration::from_secs(5)).await;
-
-			let firewall_msg_in_page = <dyn Firewall>::get_firewall(driver.clone()).await?;
-
-			if firewall_msg_in_page {
-				'firewall_in_page: for _ in 0..=3600 {
-					println!("====== firewall ======");
-					sleep(Duration::from_secs(30)).await;
-
-					let firewall_msg_in_loop_in_page =
-						<dyn Firewall>::get_firewall(driver.clone()).await?;
-
-					if !firewall_msg_in_loop_in_page {
-						break 'firewall_in_page;
+				if ads_to_check.len() > 0 {
+					for ad in &ads_to_check {
+						if id.contains(ad) {
+							my_ads = "*";
+						};
 					}
 				}
+
+				println!(
+					"{} из {} - {} {}",
+					&position,
+					&ads_count.clone(),
+					&id,
+					&my_ads
+				);
+
+				// === RESULT ===
+
+				wtr.write_record(&[
+					my_ads,
+					format!("{}", utc.format("%d-%m-%Y_%H:%M:%S")).as_str(),
+					position.to_string().as_str(),
+					"",
+					"",
+					paid.to_string().as_str(),
+					"",
+					id,
+					title.replace("\"", "").as_str(),
+					href.as_str(),
+					search_query,
+					"",
+					"",
+					city_query,
+					"",
+					"",
+				])
+				.expect("write record err");
+			} else {
+				// Переход в новую вкладку
+				let handle = driver.window().await?;
+
+				let _ = <dyn Feed>::click_ad_title_link(driver.clone(),
+					format!("//div[contains(@class, \"items-items\")]/div[contains(@class, \"iva-item-root\")][{}]//*[@data-marker=\"item-title\"]", count),
+					format!("//body/div[1]/div/buyer-location/div/div/div[2]/div/div[2]/div[3]/div[3]/div[3]/div[2]/div[contains(@class, \"iva-item-root\")][{}]/div/div/div/div[2]/div/a", count)
+				).await?;
+
+				let handles = driver.windows().await?;
+				driver.switch_to_window(handles[1].clone()).await?;
+				sleep(Duration::from_secs(5)).await;
+
+				let firewall_msg_in_page = <dyn Firewall>::get_firewall(driver.clone()).await?;
+
+				if firewall_msg_in_page {
+					'firewall_in_page: for _ in 0..=3600 {
+						println!("====== firewall ======");
+						sleep(Duration::from_secs(30)).await;
+
+						let firewall_msg_in_loop_in_page =
+							<dyn Firewall>::get_firewall(driver.clone()).await?;
+
+						if !firewall_msg_in_loop_in_page {
+							break 'firewall_in_page;
+						}
+					}
+				}
+
+				let (seller_id, seller_name) =
+					<dyn AdsAd>::get_seller_name_arr(driver.clone()).await?;
+				let seller_type = <dyn AdsAd>::get_seller_type(driver.clone()).await?;
+				let answer_time = <dyn AdsAd>::get_answer_time(driver.clone()).await?;
+				let rating = <dyn AdsAd>::get_rating(driver.clone()).await?;
+				let reviews = <dyn AdsAd>::get_reviews(driver.clone()).await?;
+				let register_date = <dyn AdsAd>::get_register_date(driver.clone()).await?;
+				let seller_ads_count = <dyn AdsAd>::get_seller_ads_count(driver.clone()).await?;
+				let seller_closed_ads_count =
+					<dyn AdsAd>::get_seller_closed_ads_count(driver.clone()).await?;
+				let description_string = <dyn AdsAd>::get_description(driver.clone()).await?;
+				let address = <dyn AdsAd>::get_address(driver.clone()).await?;
+				let footer_article = <dyn AdsAd>::check_footer_article(driver.clone()).await?;
+				let date = <dyn AdsAd>::get_date(driver.clone(), footer_article).await?;
+				let (views, views_today) =
+					<dyn AdsAd>::get_views_and_views_today(driver.clone(), footer_article).await?;
+
+				driver.close_window().await?;
+				driver.switch_to_window(handle.clone()).await?;
+				sleep(Duration::from_secs(2)).await;
+
+				let mut my_ads = "";
+
+				if ads_to_check.len() > 0 {
+					for ad in &ads_to_check {
+						if id.contains(ad) {
+							my_ads = "*";
+						};
+					}
+				}
+
+				println!(
+					"{} из {} - {} {}",
+					&position,
+					&ads_count.clone(),
+					&id,
+					&my_ads
+				);
+
+				// === RESULT ===
+
+				wtr.write_record(&[
+					my_ads,
+					format!("{}", utc.format("%d-%m-%Y_%H:%M:%S")).as_str(),
+					position.to_string().as_str(),
+					views.as_str(),
+					views_today.as_str(),
+					paid.to_string().as_str(),
+					date.as_str(),
+					id,
+					title.replace("\"", "").as_str(),
+					price.as_str(),
+					href.as_str(),
+					categories.as_str(),
+					search_query,
+					seller_id.as_str(),
+					seller_name.as_str(),
+					seller_type.as_str(),
+					register_date.as_str(),
+					answer_time.as_str(),
+					rating.as_str(),
+					reviews.as_str(),
+					seller_ads_count.as_str(),
+					seller_closed_ads_count.as_str(),
+					city_query,
+					address.as_str(),
+					description_string.as_str(),
+				])
+				.expect("write record err");
 			}
-
-			//span[contains(@class, "style-price-value")]
-
-			let (seller_id, seller_name) = <dyn AdsAd>::get_seller_name_arr(driver.clone()).await?;
-			// let rating = <dyn AdsAd>::get_rating(driver.clone()).await?;
-			// let reviews = <dyn AdsAd>::get_reviews(driver.clone()).await?;
-			// let register_date = <dyn AdsAd>::get_register_date(driver.clone()).await?;
-			// let seller_ads_count = <dyn AdsAd>::get_seller_ads_count(driver.clone()).await?;
-			let address = <dyn AdsAd>::get_address(driver.clone()).await?;
-			let footer_article = <dyn AdsAd>::check_footer_article(driver.clone()).await?;
-			let date = <dyn AdsAd>::get_date(driver.clone(), footer_article).await?;
-			let (views, views_today) =
-				<dyn AdsAd>::get_views_and_views_today(driver.clone(), footer_article).await?;
-			let description = <dyn AdsAd>::get_description(driver.clone()).await?;
-
-			// === RESULT ===
-
-			driver.close_window().await?;
-			driver.switch_to_window(handle.clone()).await?;
-			sleep(Duration::from_secs(2)).await;
-
-			println!("{} из {} - {}", &position, &ads_count.clone(), &id);
-
-			wtr.write_record(&[
-				format!("{}", utc.format("%d-%m-%Y_%H:%M:%S")).as_str(),
-				position.to_string().as_str(),
-				views.as_str(),
-				views_today.as_str(),
-				paid.as_str(),
-				date.as_str(),
-				id,
-				title.replace("\"", "").as_str(),
-				href.as_str(),
-				seller_id.as_str(),
-				seller_name.as_str(),
-				city_query,
-				address.as_str(),
-				description.as_str(),
-			])
-			.expect("write record err");
 		}
 
 		let parent = <dyn Feed>::get_feed_parent_block(driver.clone()).await?;
 
 		if parent.inner_html().await?.contains("других городов") {
-			println!("====== break ======");			
+			println!("====== break ======");
 			break 'outer;
 		}
 
@@ -237,7 +327,7 @@ pub async fn vacancies_crawler() -> WebDriverResult<()> {
 		println!("{}", "======");
 	}
 
-	wtr.flush()?;	
+	wtr.flush()?;
 
 	Ok(())
 }

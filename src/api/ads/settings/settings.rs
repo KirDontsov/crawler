@@ -18,12 +18,12 @@ impl dyn Settings {
 		{
 			Ok(res) => res,
 			Err(e) => {
-				println!("error while searching categories block: {}", e);
+				println!("error while searching open_geo_modal_btn block: {}", e);
 				Vec::new()
 			}
 		};
 
-		let region_btn = region_arr.get(0).expect("no region_btn");
+		let region_btn = region_arr.get(0).expect("no open_geo_modal_btn");
 
 		region_btn.click().await?;
 		sleep(Duration::from_secs(5)).await;
@@ -41,7 +41,7 @@ impl dyn Settings {
 		{
 			Ok(res) => res,
 			Err(e) => {
-				println!("error while searching categories block: {}", e);
+				println!("error while searching clear_btn block: {}", e);
 				Vec::new()
 			}
 		};
@@ -69,7 +69,7 @@ impl dyn Settings {
 		{
 			Ok(res) => res,
 			Err(e) => {
-				println!("error while searching categories block: {}", e);
+				println!("error while searching region_input block: {}", e);
 				Vec::new()
 			}
 		};
@@ -92,7 +92,7 @@ impl dyn Settings {
 		{
 			Ok(res) => res,
 			Err(e) => {
-				println!("error while searching categories block: {}", e);
+				println!("error while searching region_suggest block: {}", e);
 				Vec::new()
 			}
 		};
@@ -115,7 +115,7 @@ impl dyn Settings {
 			{
 				Ok(res) => res,
 				Err(e) => {
-					println!("error while searching categories block: {}", e);
+					println!("error while searching geo_confirm block: {}", e);
 					Vec::new()
 				}
 			};
@@ -141,7 +141,7 @@ impl dyn Settings {
 		).await {
 			Ok(res) => res,
 			Err(e) => {
-				println!("error while searching categories block: {}", e);
+				println!("error while searching search_input block: {}", e);
 				Vec::new()
 			}
 		};
@@ -186,7 +186,7 @@ impl dyn Settings {
 				suggest_arr = match <dyn Crawler>::find_elements(
 					driver.clone(),
 					"//div[contains(@class, \"suggest-dropdownItems\")]/button//*[text()[contains(.,'← Вакансии')]]".to_string(),
-					"//body/div[3]/div[2]/div/div/div/div/div/div//*[text()[contains(.,'← Вакансии')]]".to_string(),
+					"//div[contains(@class, \"suggest-dropdownItems\")]/button//*[text()[contains(.,'← Работа')]]".to_string(),
 				)
 				.await
 				{

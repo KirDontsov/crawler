@@ -53,7 +53,7 @@ impl dyn Feed {
 		let text = match <dyn Crawler>::find_text(driver.clone(), xpath, xpath2).await {
 			Ok(elem) => elem,
 			Err(e) => {
-				println!("error while searching href block: {}", e);
+				println!("error while searching text block: {}", e);
 				"".to_string()
 			}
 		};
@@ -88,7 +88,7 @@ impl dyn Feed {
 			match <dyn Crawler>::find_elements(driver.clone(), xpath, "".to_string()).await {
 				Ok(res) => res,
 				Err(e) => {
-					println!("error while searching seller_name block: {}", e);
+					println!("error while searching paid_icon block: {}", e);
 					Vec::new()
 				}
 			};
@@ -114,7 +114,7 @@ impl dyn Feed {
 		let imgs_arr = match <dyn Crawler>::find_elements(driver.clone(), xpath, xpath2).await {
 			Ok(elem) => elem,
 			Err(e) => {
-				println!("error while searching href block: {}", e);
+				println!("error while searching paid_imgs block: {}", e);
 				Vec::new()
 			}
 		};
@@ -132,12 +132,12 @@ impl dyn Feed {
 		{
 			Ok(elem) => elem,
 			Err(e) => {
-				println!("error while searching main_arr block: {}", e);
+				println!("error while searching feed_parent block: {}", e);
 				Vec::new()
 			}
 		};
 
-		let parent = main_arr.get(0).expect("no parent");
+		let parent = main_arr.get(0).expect("no feed_parent");
 
 		Ok(parent.to_owned())
 	}
@@ -157,13 +157,13 @@ impl dyn Feed {
 		{
 			Ok(elem) => elem,
 			Err(e) => {
-				println!("error while searching href block: {}", e);
+				println!("error while searching paid_img block: {}", e);
 				"".to_string()
 			}
 		};
 
 		let img_src_arr = img_src_full.split("/").collect::<Vec<&str>>();
-		let img_src_str = img_src_arr.last().expect("no img src");
+		let img_src_str = img_src_arr.last().expect("no paid_img src");
 
 		Ok(img_src_str.replace(".svg", "").to_owned().to_string())
 	}
@@ -177,7 +177,7 @@ impl dyn Feed {
 		{
 			Ok(res) => res,
 			Err(e) => {
-				println!("error while searching seller_name block: {}", e);
+				println!("error while searching title_link block: {}", e);
 				Vec::new()
 			}
 		};
@@ -204,12 +204,12 @@ impl dyn Feed {
 		{
 			Ok(elem) => elem,
 			Err(e) => {
-				println!("error while searching button_arr block: {}", e);
+				println!("error while searching pagination button_arr block: {}", e);
 				Vec::new()
 			}
 		};
 
-		let button = button_arr.get(0).expect("no button");
+		let button = button_arr.get(0).expect("no pagination button");
 
 		button.click().await?;
 		sleep(Duration::from_secs(5)).await;

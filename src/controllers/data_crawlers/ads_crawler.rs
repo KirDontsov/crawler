@@ -4,8 +4,7 @@ use std::env;
 use thirtyfour::prelude::*;
 use tokio::time::{sleep, Duration};
 
-use crate::api::Feed;
-use crate::api::{AdsAd, Header, Settings};
+use crate::api::{Feed, AdsAd, Header, Settings};
 use crate::shared::{Constants, Crawler, Driver, Firewall};
 
 #[allow(unreachable_code)]

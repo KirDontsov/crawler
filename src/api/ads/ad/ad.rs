@@ -17,7 +17,7 @@ impl dyn AdsAd {
 		{
 			Ok(res) => res,
 			Err(e) => {
-				println!("error while searching seller_name block: {}", e);				
+				println!("error while searching seller_name block: {}", e);
 				Vec::new()
 			}
 		};
@@ -58,7 +58,7 @@ impl dyn AdsAd {
 		{
 			Ok(res) => res,
 			Err(e) => {
-				println!("error while searching rating block: {}", e);				
+				println!("error while searching answer_time block: {}", e);
 				Vec::new()
 			}
 		};
@@ -81,7 +81,7 @@ impl dyn AdsAd {
 		{
 			Ok(res) => res,
 			Err(e) => {
-				println!("error while searching seller_type block: {}", e);				
+				println!("error while searching seller_type block: {}", e);
 				Vec::new()
 			}
 		};
@@ -104,7 +104,7 @@ impl dyn AdsAd {
 		{
 			Ok(res) => res,
 			Err(e) => {
-				println!("error while searching rating block: {}", e);				
+				println!("error while searching rating block: {}", e);
 				Vec::new()
 			}
 		};
@@ -157,7 +157,7 @@ impl dyn AdsAd {
 		{
 			Ok(elem) => elem,
 			Err(e) => {
-				println!("error while searching ads_banner_arr block: {}", e);
+				println!("error while searching seller_info_redesign block: {}", e);
 				false
 			}
 		};
@@ -251,7 +251,7 @@ impl dyn AdsAd {
 		{
 			Ok(res) => res,
 			Err(e) => {
-				println!("error while searching seller_ads_count block: {}", e);
+				println!("error while searching seller_closed_ads_count block: {}", e);
 				Vec::new()
 			}
 		};
@@ -289,7 +289,7 @@ impl dyn AdsAd {
 		{
 			Ok(res) => res,
 			Err(e) => {
-				println!("error while searching seller_ads_count block: {}", e);
+				println!("error while searching description block: {}", e);
 				Vec::new()
 			}
 		};
@@ -341,7 +341,7 @@ impl dyn AdsAd {
 		{
 			Ok(elem) => elem,
 			Err(e) => {
-				println!("error while searching ads_banner_arr block: {}", e);
+				println!("error while searching footer_article block: {}", e);
 				false
 			}
 		};
@@ -415,7 +415,7 @@ impl dyn AdsAd {
 			{
 				Ok(res) => res,
 				Err(e) => {
-					println!("error while searching views block: {}", e);
+					println!("error while searching views_and_views_today block: {}", e);
 					Vec::new()
 				}
 			};
@@ -456,7 +456,7 @@ impl dyn AdsAd {
 			{
 				Ok(res) => res,
 				Err(e) => {
-					println!("error while searching views block: {}", e);
+					println!("error while searching views_and_views_today block: {}", e);
 					Vec::new()
 				}
 			};
