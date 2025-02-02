@@ -1,4 +1,5 @@
 use thirtyfour::prelude::*;
+use tokio::time::{sleep, Duration};
 
 use crate::shared::Crawler;
 
@@ -331,6 +332,9 @@ impl dyn AdsAd {
 		Ok(address)
 	}
 
+
+	//li[contains(@class, "images-preview-previewImageWrapper")]
+	//li[contains(@class, \"images-preview-previewImageWrapper\")]
 	pub async fn check_footer_article(driver: WebDriver) -> Result<bool, WebDriverError> {
 		let footer_article = match <dyn Crawler>::check_if_block_exists(
 			driver.clone(),
@@ -347,6 +351,122 @@ impl dyn AdsAd {
 		};
 
 		Ok(footer_article)
+	}
+
+	pub async fn get_images(driver: WebDriver) -> Result<String, WebDriverError> {
+		let imgs_blocks_exists = match <dyn Crawler>::check_if_block_exists(
+			driver.clone(),
+			"//li[contains(@class, \"images-preview-previewImageWrapper\")]".to_string(),
+			"".to_string(),
+		)
+		.await
+		{
+			Ok(elem) => elem,
+			Err(e) => {
+				println!("error while searching footer_article block: {}", e);
+				false
+			}
+		};
+
+		if imgs_blocks_exists {
+			let imgs_blocks_arr = match <dyn Crawler>::find_elements(
+				driver.clone(),
+				"//li[contains(@class, \"images-preview-previewImageWrapper\")]".to_string(),
+				"//body/div[1]/div/div[3]/div[1]/div/div[2]/div[3]/div/div[1]/div[2]/div[1]/div[1]/div/div/ul/li[1]".to_string(),
+			)
+			.await
+			{
+				Ok(res) => res,
+				Err(e) => {
+					println!("error while searching address block: {}", e);
+					Vec::new()
+				}
+			};
+			dbg!(imgs_blocks_arr.len().to_string());
+			Ok(imgs_blocks_arr.len().to_string())
+		} else {
+			Ok(0.to_string())
+		}
+	}
+	//div[contains(@class, "contact-bar-wrapper")]//button[@data-marker="item-phone-button/card"]//*[text()[contains(.,'Показать телефон')]]
+	pub async fn get_phone(driver: WebDriver) -> Result<String, WebDriverError> {
+		let phone_button_exists = match <dyn Crawler>::check_if_block_exists(
+			driver.clone(),
+			"//div[contains(@class, \"contact-bar-wrapper\")]//button[@data-marker=\"item-phone-button/card\"]//*[text()[contains(.,'Показать телефон')]]".to_string(),
+			"".to_string(),
+		)
+		.await
+		{
+			Ok(elem) => elem,
+			Err(e) => {
+				println!("error while searching footer_article block: {}", e);
+				false
+			}
+		};
+
+		dbg!(&phone_button_exists);
+
+		if phone_button_exists {
+			let phone_button_arr = match <dyn Crawler>::find_elements(
+				driver.clone(),
+				"//div[contains(@class, \"contact-bar-wrapper\")]//button[@data-marker=\"item-phone-button/card\"]".to_string(),
+				"//body/div[1]/div/div[3]/div[1]/div/div[2]/div[3]/div/div[2]/div[1]/div/div/div[3]/div[1]/div/div/div[1]/div/div/div/div/button".to_string(),
+			)
+			.await
+			{
+				Ok(res) => res,
+				Err(e) => {
+					println!("error while searching address block: {}", e);
+					Vec::new()
+				}
+			};
+
+			let phone_button = phone_button_arr.get(0).expect("no open_geo_modal_btn");
+
+			driver
+				.action_chain()
+				.move_to_element_center(&phone_button)
+				.click()
+				.perform()
+				.await?;
+
+			sleep(Duration::from_secs(2)).await;
+
+			let phone_img_exists = match <dyn Crawler>::check_if_block_exists(
+				driver.clone(),
+				"//*[@data-marker=\"phone-popup/phone-image\"]".to_string(),
+				"".to_string(),
+			)
+			.await
+			{
+				Ok(elem) => elem,
+				Err(e) => {
+					println!("error while searching footer_article block: {}", e);
+					false
+				}
+			};
+
+			if phone_img_exists {
+				let phone_img =
+					match <dyn Crawler>::find_attr(driver.clone(),
+						"//*[@data-marker=\"phone-popup/phone-image\"]".to_string(),
+						"//body/div[2]/div[12]/div/div/div/div[1]/div/div[2]/img".to_string(),
+						"src".to_string()).await
+					{
+						Ok(elem) => elem,
+						Err(e) => {
+							println!("error while searching phone_img block: {}", e);
+							"".to_string()
+						}
+					};
+
+				Ok(phone_img)
+			} else {
+				Ok("".to_string())
+			}
+		} else {
+			Ok("".to_string())
+		}
 	}
 
 	pub async fn get_date(

@@ -1,7 +1,7 @@
 pub trait Constants {}
 
 impl dyn Constants {
-	pub fn get_ads_crawler_table_headers() -> [&'static str; 25] {
+	pub fn get_ads_crawler_table_headers() -> [&'static str; 27] {
 		[
 			"Мое",
 			"Дата прогона",
@@ -28,6 +28,8 @@ impl dyn Constants {
 			"Город (запрос)",
 			"Адрес",
 			"Описание",
+			"Кол-во фото",
+			"Телефон"
 		]
 	}
 

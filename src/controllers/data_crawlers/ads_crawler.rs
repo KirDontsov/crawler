@@ -227,6 +227,7 @@ pub async fn ads_crawler() -> WebDriverResult<()> {
 					city_query,
 					"",
 					"",
+					"",
 				])
 				.expect("write record err");
 			} else {
@@ -274,6 +275,8 @@ pub async fn ads_crawler() -> WebDriverResult<()> {
 				let date = <dyn AdsAd>::get_date(driver.clone(), footer_article).await?;
 				let (views, views_today) =
 					<dyn AdsAd>::get_views_and_views_today(driver.clone(), footer_article).await?;
+				let imgs_count = <dyn AdsAd>::get_images(driver.clone()).await?;
+				let phone = <dyn AdsAd>::get_phone(driver.clone()).await?;
 
 				driver.close_window().await?;
 				driver.switch_to_window(handle.clone()).await?;
@@ -333,6 +336,8 @@ pub async fn ads_crawler() -> WebDriverResult<()> {
 					city_query,
 					address.as_str(),
 					description_string.as_str(),
+					imgs_count.as_str(),
+					phone.as_str(),
 				])
 				.expect("write record err");
 			}
