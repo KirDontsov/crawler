@@ -1,5 +1,6 @@
 use thirtyfour::prelude::*;
 use tokio::time::{sleep, Duration};
+use tesseract::Tesseract;
 
 use crate::shared::Crawler;
 
@@ -332,9 +333,6 @@ impl dyn AdsAd {
 		Ok(address)
 	}
 
-
-	//li[contains(@class, "images-preview-previewImageWrapper")]
-	//li[contains(@class, \"images-preview-previewImageWrapper\")]
 	pub async fn check_footer_article(driver: WebDriver) -> Result<bool, WebDriverError> {
 		let footer_article = match <dyn Crawler>::check_if_block_exists(
 			driver.clone(),
@@ -382,13 +380,13 @@ impl dyn AdsAd {
 					Vec::new()
 				}
 			};
-			dbg!(imgs_blocks_arr.len().to_string());
+
 			Ok(imgs_blocks_arr.len().to_string())
 		} else {
 			Ok(0.to_string())
 		}
 	}
-	//div[contains(@class, "contact-bar-wrapper")]//button[@data-marker="item-phone-button/card"]//*[text()[contains(.,'Показать телефон')]]
+
 	pub async fn get_phone(driver: WebDriver) -> Result<String, WebDriverError> {
 		let phone_button_exists = match <dyn Crawler>::check_if_block_exists(
 			driver.clone(),
@@ -403,8 +401,6 @@ impl dyn AdsAd {
 				false
 			}
 		};
-
-		dbg!(&phone_button_exists);
 
 		if phone_button_exists {
 			let phone_button_arr = match <dyn Crawler>::find_elements(
@@ -460,7 +456,16 @@ impl dyn AdsAd {
 						}
 					};
 
-				Ok(phone_img)
+				let image_str = image_base64::from_base64(phone_img.to_string());
+
+				let mut ocr = Tesseract::new(None, Some("rus"))
+					.expect("tess err")
+					.set_image_from_mem(&image_str)
+					.expect("tess err");
+
+		    let text = ocr.get_text().expect("tess err");
+
+				Ok(text)
 			} else {
 				Ok("".to_string())
 			}
