@@ -144,15 +144,15 @@ pub async fn ads_crawler() -> WebDriverResult<()> {
 			block.scroll_into_view().await?;
 
 			let href = <dyn Feed>::get_href(driver.clone(),
-				format!("//div[contains(@class, \"items-items\")]/div[contains(@class, \"iva-item-root\")][{}]/div/div/div[2]/div[2]/div/a", count),
-				format!("//body/div[1]/div/buyer-location/div/div/div[2]/div/div[2]/div[3]/div[3]/div[3]/div[2]/div[contains(@class, \"iva-item-root\")][{}]/div/div/div[2]/div[2]/div/a", count)
+				format!("//div[contains(@class, \"items-items\")]/div[contains(@class, \"iva-item-root\")][{}]//*[@data-marker=\"item-title\"]", count),
+				format!("//body/div[1]/div/buyer-location/div/div/div[2]/div/div[2]/div[3]/div[3]/div[3]/div[2]/div[contains(@class, \"iva-item-root\")][{}]//*[@data-marker=\"item-title\"]", count)
 			).await?;
 
 			let id = href.split("_").last().expect("no href");
 
 			let title = <dyn Feed>::get_text(driver.clone(),
-				format!("//div[contains(@class, \"items-items\")]/div[contains(@class, \"iva-item-root\")][{}]/div/div/div[2]/div[2]/div/a/h3", count),
-				format!("//body/div[1]/div/buyer-location/div/div/div[2]/div/div[2]/div[3]/div[3]/div[3]/div[2]/div[contains(@class, \"iva-item-root\")][{}]/div/div/div[2]/div[2]/div/a/h3", count)
+				format!("//div[contains(@class, \"items-items\")]/div[contains(@class, \"iva-item-root\")][{}]//*[@data-marker=\"item-title\"]/h3", count),
+				format!("//body/div[1]/div/buyer-location/div/div/div[2]/div/div[2]/div[3]/div[3]/div[3]/div[2]/div[contains(@class, \"iva-item-root\")][{}]//*[@data-marker=\"item-title\"]/h3", count)
 			).await?;
 
 			let price = <dyn Feed>::get_price(driver.clone(),
@@ -235,8 +235,8 @@ pub async fn ads_crawler() -> WebDriverResult<()> {
 				let handle = driver.window().await?;
 
 				let _ = <dyn Feed>::click_ad_title_link(driver.clone(),
-					format!("//div[contains(@class, \"items-items\")]/div[contains(@class, \"iva-item-root\")][{}]/div/div/div[2]/div[2]/div/a", count),
-					format!("//body/div[1]/div/buyer-location/div/div/div[2]/div/div[2]/div[3]/div[3]/div[3]/div[2]/div[contains(@class, \"iva-item-root\")][{}]/div/div/div[2]/div[2]/div/a", count)
+					format!("//div[contains(@class, \"items-items\")]/div[contains(@class, \"iva-item-root\")][{}]//*[@data-marker=\"item-title\"]", count),
+					format!("//body/div[1]/div/buyer-location/div/div/div[2]/div/div[2]/div[3]/div[3]/div[3]/div[2]/div[contains(@class, \"iva-item-root\")][{}]//*[@data-marker=\"item-title\"]", count)
 				).await?;
 
 				let handles = driver.windows().await?;
