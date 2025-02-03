@@ -229,6 +229,7 @@ pub async fn ads_crawler() -> WebDriverResult<()> {
 					"",
 					"",
 					"",
+					"",
 				])
 				.expect("write record err");
 			} else {
