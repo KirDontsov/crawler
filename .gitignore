@@ -3,6 +3,9 @@
 .vscode/**
 /data/**
 .env
+_env
+__env
+
 
 output/**
 
