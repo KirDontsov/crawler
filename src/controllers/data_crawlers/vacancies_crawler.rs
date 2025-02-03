@@ -204,8 +204,17 @@ pub async fn vacancies_crawler() -> WebDriverResult<()> {
 					"",
 					id,
 					title.replace("\"", "").as_str(),
+					"",
 					href.as_str(),
+					categories.as_str(),
 					search_query,
+					"",
+					"",
+					"",
+					"",
+					"",
+					"",
+					"",
 					"",
 					"",
 					city_query,
@@ -213,6 +222,7 @@ pub async fn vacancies_crawler() -> WebDriverResult<()> {
 					"",
 				])
 				.expect("write record err");
+
 			} else {
 				// Переход в новую вкладку
 				let handle = driver.window().await?;

@@ -10,7 +10,7 @@ impl dyn Settings {
 	pub async fn click_open_geo_modal_btn(driver: WebDriver) -> Result<(), WebDriverError> {
 		let region_arr = match <dyn Crawler>::find_elements(
 			driver.clone(),
-			"//div[contains(@class, \"main-richTitleWrapper__content\")]".to_string(),
+			"//div[@data-marker=\"search-form/change-location\"]".to_string(),
 			"//body/div[1]/div/buyer-location/div/div/div[2]/div/div[1]/div/div/div[4]/div[1]/div"
 				.to_string(),
 		)
