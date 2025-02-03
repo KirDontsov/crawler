@@ -1,6 +1,6 @@
+use tesseract::Tesseract;
 use thirtyfour::prelude::*;
 use tokio::time::{sleep, Duration};
-use tesseract::Tesseract;
 
 use crate::shared::Crawler;
 
@@ -380,14 +380,16 @@ impl dyn AdsAd {
 					Vec::new()
 				}
 			};
-
 			Ok(imgs_blocks_arr.len().to_string())
 		} else {
 			Ok(0.to_string())
 		}
 	}
 
-	pub async fn get_phone(driver: WebDriver) -> Result<String, WebDriverError> {
+	pub async fn get_phone(
+		driver: WebDriver,
+		collect_phone: bool,
+	) -> Result<String, WebDriverError> {
 		let phone_button_exists = match <dyn Crawler>::check_if_block_exists(
 			driver.clone(),
 			"//div[contains(@class, \"contact-bar-wrapper\")]//button[@data-marker=\"item-phone-button/card\"]//*[text()[contains(.,'Показать телефон')]]".to_string(),
@@ -402,52 +404,57 @@ impl dyn AdsAd {
 			}
 		};
 
-		if phone_button_exists {
-			let phone_button_arr = match <dyn Crawler>::find_elements(
-				driver.clone(),
-				"//div[contains(@class, \"contact-bar-wrapper\")]//button[@data-marker=\"item-phone-button/card\"]".to_string(),
-				"//body/div[1]/div/div[3]/div[1]/div/div[2]/div[3]/div/div[2]/div[1]/div/div/div[3]/div[1]/div/div/div[1]/div/div/div/div/button".to_string(),
-			)
-			.await
-			{
-				Ok(res) => res,
-				Err(e) => {
-					println!("error while searching address block: {}", e);
-					Vec::new()
-				}
-			};
+		if !collect_phone {
+			Ok("".to_string())
+		} else {
+			if phone_button_exists {
+				let phone_button_arr = match <dyn Crawler>::find_elements(
+					driver.clone(),
+					"//div[contains(@class, \"contact-bar-wrapper\")]//button[@data-marker=\"item-phone-button/card\"]".to_string(),
+					"//body/div[1]/div/div[3]/div[1]/div/div[2]/div[3]/div/div[2]/div[1]/div/div/div[3]/div[1]/div/div/div[1]/div/div/div/div/button".to_string(),
+				)
+				.await
+				{
+					Ok(res) => res,
+					Err(e) => {
+						println!("error while searching address block: {}", e);
+						Vec::new()
+					}
+				};
 
-			let phone_button = phone_button_arr.get(0).expect("no open_geo_modal_btn");
+				let phone_button = phone_button_arr.get(0).expect("no open_geo_modal_btn");
 
-			driver
-				.action_chain()
-				.move_to_element_center(&phone_button)
-				.click()
-				.perform()
-				.await?;
+				driver
+					.action_chain()
+					.move_to_element_center(&phone_button)
+					.click()
+					.perform()
+					.await?;
 
-			sleep(Duration::from_secs(2)).await;
+				sleep(Duration::from_secs(2)).await;
 
-			let phone_img_exists = match <dyn Crawler>::check_if_block_exists(
-				driver.clone(),
-				"//*[@data-marker=\"phone-popup/phone-image\"]".to_string(),
-				"".to_string(),
-			)
-			.await
-			{
-				Ok(elem) => elem,
-				Err(e) => {
-					println!("error while searching footer_article block: {}", e);
-					false
-				}
-			};
+				let phone_img_exists = match <dyn Crawler>::check_if_block_exists(
+					driver.clone(),
+					"//*[@data-marker=\"phone-popup/phone-image\"]".to_string(),
+					"".to_string(),
+				)
+				.await
+				{
+					Ok(elem) => elem,
+					Err(e) => {
+						println!("error while searching footer_article block: {}", e);
+						false
+					}
+				};
 
-			if phone_img_exists {
-				let phone_img =
-					match <dyn Crawler>::find_attr(driver.clone(),
+				if phone_img_exists {
+					let phone_img = match <dyn Crawler>::find_attr(
+						driver.clone(),
 						"//*[@data-marker=\"phone-popup/phone-image\"]".to_string(),
 						"//body/div[2]/div[12]/div/div/div/div[1]/div/div[2]/img".to_string(),
-						"src".to_string()).await
+						"src".to_string(),
+					)
+					.await
 					{
 						Ok(elem) => elem,
 						Err(e) => {
@@ -456,21 +463,22 @@ impl dyn AdsAd {
 						}
 					};
 
-				let image_str = image_base64::from_base64(phone_img.to_string());
+					let image_str = image_base64::from_base64(phone_img.to_string());
 
-				let mut ocr = Tesseract::new(None, Some("rus"))
-					.expect("tess err")
-					.set_image_from_mem(&image_str)
-					.expect("tess err");
+					let mut ocr = Tesseract::new(None, Some("rus"))
+						.expect("tess err")
+						.set_image_from_mem(&image_str)
+						.expect("tess err");
 
-		    let text = ocr.get_text().expect("tess err");
+					let text = ocr.get_text().expect("tess err");
 
-				Ok(text)
+					Ok(text)
+				} else {
+					Ok("".to_string())
+				}
 			} else {
 				Ok("".to_string())
 			}
-		} else {
-			Ok("".to_string())
 		}
 	}
 

@@ -4,7 +4,7 @@ use std::env;
 use thirtyfour::prelude::*;
 use tokio::time::{sleep, Duration};
 
-use crate::api::{Feed, AdsAd, Header, Settings};
+use crate::api::{AdsAd, Feed, Header, Settings};
 use crate::shared::{Constants, Crawler, Driver, Firewall};
 
 #[allow(unreachable_code)]
@@ -18,6 +18,7 @@ pub async fn ads_crawler() -> WebDriverResult<()> {
 	let fullscreen_mode = env::var("FULLSCREEN_MODE").expect("FULLSCREEN_MODE not set");
 	let accaunts_to_check_str = env::var("ACCAUNTS_TO_CHECK").unwrap_or("".to_string());
 	let ads_to_check_str = env::var("ADS_TO_CHECK").unwrap_or("".to_string());
+	let collect_phone = env::var("COLLECT_PHONE").expect("COLLECT_PHONE not set");
 	let visit_ads_page = env::var("VISIT_ADS_PAGE").expect("VISIT_ADS_PAGE not set");
 
 	let accaunts_to_check = if accaunts_to_check_str != "" {
@@ -276,7 +277,8 @@ pub async fn ads_crawler() -> WebDriverResult<()> {
 				let (views, views_today) =
 					<dyn AdsAd>::get_views_and_views_today(driver.clone(), footer_article).await?;
 				let imgs_count = <dyn AdsAd>::get_images(driver.clone()).await?;
-				let phone = <dyn AdsAd>::get_phone(driver.clone()).await?;
+				let phone =
+					<dyn AdsAd>::get_phone(driver.clone(), collect_phone.parse().unwrap()).await?;
 
 				driver.close_window().await?;
 				driver.switch_to_window(handle.clone()).await?;
