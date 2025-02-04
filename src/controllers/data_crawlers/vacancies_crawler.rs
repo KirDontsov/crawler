@@ -136,9 +136,12 @@ pub async fn vacancies_crawler() -> WebDriverResult<()> {
 
 			block.scroll_into_view().await?;
 
+			//div[contains(@class, \"items-items\")]/div[contains(@class, \"iva-item-root\")][{}]/div/div/div/div[2]/div/a
+			//div[contains(@class, "items-items")]/div[contains(@class, "iva-item-root")][1]/div/div/div/div[2]/div/a
+
 			let href = <dyn Feed>::get_href(driver.clone(),
-				format!("//div[contains(@class, \"items-items\")]/div[contains(@class, \"iva-item-root\")][{}]/div/div/div/div[2]/div/a", count),
-				format!("//body/div[1]/div/buyer-location/div/div/div[2]/div/div[2]/div[3]/div[3]/div[3]/div[2]/div[contains(@class, \"iva-item-root\")][{}]/div/div/div/div[2]/div/a", count)
+				format!("//div[contains(@class, \"items-items\")]/div[contains(@class, \"iva-item-root\")][{}]//*[@data-marker=\"item-title\"]", count),
+				format!("//body/div[1]/div/buyer-location/div/div/div[2]/div/div[2]/div[3]/div[3]/div[3]/div[2]/div[contains(@class, \"iva-item-root\")][{}]//*[@data-marker=\"item-title\"]", count)
 			).await?;
 
 			let id = href.split("_").last().expect("no href");
@@ -154,7 +157,7 @@ pub async fn vacancies_crawler() -> WebDriverResult<()> {
 			).await?;
 
 			let _ = <dyn Feed>::move_mouse_to_paid(driver.clone(),
-				format!("//div[contains(@class, \"items-items\")]/div[contains(@class, \"iva-item-root\")][{}]/div/div/div/div[last()]/div[2]/div/i", count),
+				format!("//div[contains(@class, \"items-items\")]/div[contains(@class, \"iva-item-root\")][{}]/div/div/div//*[contains(@class, \"iva-item-dateInfoStep\")]//i", count),
 			).await?;
 
 			let paid_imgs = <dyn Feed>::get_paid_imgs(driver.clone(),
@@ -166,7 +169,7 @@ pub async fn vacancies_crawler() -> WebDriverResult<()> {
 
 			for (p, _) in paid_imgs.clone().into_iter().enumerate() {
 				let piad_img_count = p + 1;
-
+				// поповер в портале
 				let img = <dyn Feed>::get_paid_img(driver.clone(), format!("//div[contains(@class, \"styles-entry\")][{}]/i[contains(@class, \"style-vas-icon\")]/img", piad_img_count), "".to_string()).await?;
 				paid_types.push(img);
 			}
