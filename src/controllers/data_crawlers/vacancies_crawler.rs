@@ -147,7 +147,7 @@ pub async fn vacancies_crawler() -> WebDriverResult<()> {
 			let id = href.split("_").last().expect("no href");
 
 			let title = <dyn Feed>::get_text(driver.clone(),
-				format!("//div[contains(@class, \"items-items\")]/div[contains(@class, \"iva-item-root\")][{}]/div/div/div/div[2]/div/a/h3", count),
+				format!("//div[contains(@class, \"items-items\")]/div[contains(@class, \"iva-item-root\")][{}]//*[@data-marker=\"item-title\"]/h3", count),
 				format!("//body/div[1]/div/buyer-location/div/div/div[2]/div/div[2]/div[3]/div[3]/div[3]/div[2]/div[contains(@class, \"iva-item-root\")][{}]/div/div/div/div[2]/div/a/h3", count)
 			).await?;
 
