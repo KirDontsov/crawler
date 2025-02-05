@@ -157,7 +157,7 @@ pub async fn ads_crawler() -> WebDriverResult<()> {
 			).await?;
 
 			let price = <dyn Feed>::get_price(driver.clone(),
-				format!("//div[contains(@class, \"items-items\")]/div[contains(@class, \"iva-item-root\")][{}]/div/div/div[2]/div[3]/span/div/div/p/meta[2]", count),
+				format!("//div[contains(@class, \"items-items\")]/div[contains(@class, \"iva-item-root\")][{}]//*[@data-marker=\"item-price\"]/meta[2]", count),
 				format!("//body/div[1]/div/buyer-location/div/div/div[2]/div/div[2]/div[3]/div[3]/div[3]/div[2]/div[contains(@class, \"iva-item-root\")][{}]/div/div/div[2]/div[3]/span/div/p/meta[2]", count)
 			).await?;
 
