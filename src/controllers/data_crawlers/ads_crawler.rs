@@ -162,7 +162,7 @@ pub async fn ads_crawler() -> WebDriverResult<()> {
 			).await?;
 
 			let _ = <dyn Feed>::move_mouse_to_paid(driver.clone(),
-				format!("//div[contains(@class, \"items-items\")]/div[contains(@class, \"iva-item-root\")][{}]/div/div/div/div[last()]/div[2]/div/i", count),
+				format!("//div[contains(@class, \"items-items\")]/div[contains(@class, \"iva-item-root\")][{}]/div/div/div//*[contains(@class, \"iva-item-dateInfoStep\")]//i", count),
 			).await?;
 
 			let paid_imgs = <dyn Feed>::get_paid_imgs(driver.clone(),
