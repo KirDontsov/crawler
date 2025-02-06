@@ -74,7 +74,9 @@ pub async fn ads_crawler() -> WebDriverResult<()> {
 	let ads_count = <dyn Header>::get_ads_count(driver.clone()).await?;
 
 	println!("Start {}", utc.format("%d-%m-%Y_%H:%M:%S"));
-	println!("ads_count {}", ads_count.clone());
+	println!("City: {}", &city_query);
+	println!("Query: {}", &search_query);
+	println!("ads_count: {}", ads_count.clone());
 
 	let mut position;
 
