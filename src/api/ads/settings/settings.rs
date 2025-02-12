@@ -6,7 +6,7 @@ use crate::shared::Crawler;
 pub trait Settings {}
 
 impl dyn Settings {
-	// открытие модального окна
+	//div[@data-marker="search-form/change-location"]
 	pub async fn click_open_geo_modal_btn(driver: WebDriver) -> Result<(), WebDriverError> {
 		let region_arr = match <dyn Crawler>::find_elements(
 			driver.clone(),
@@ -31,6 +31,7 @@ impl dyn Settings {
 		Ok(())
 	}
 
+	//div[contains(@class, "styles-module-controlIcon")]
 	pub async fn click_clear_btn(driver: WebDriver) -> Result<(), WebDriverError> {
 		let clear_arr = match <dyn Crawler>::find_elements(
 			driver.clone(),
@@ -54,6 +55,7 @@ impl dyn Settings {
 		Ok(())
 	}
 
+	//input[contains(@class, "styles-module-searchInput")]
 	pub async fn write_region_input(
 		driver: WebDriver,
 		city_query: &str,
@@ -105,6 +107,7 @@ impl dyn Settings {
 		Ok(())
 	}
 
+	//div[contains(@class, "popup-buttons-")]/div[2]/button
 	pub async fn click_geo_confirm(driver: WebDriver) -> Result<(), WebDriverError> {
 		let confirm_region_btn_arr = match <dyn Crawler>::find_elements(
 				driver.clone(),
@@ -130,6 +133,7 @@ impl dyn Settings {
 		Ok(())
 	}
 
+	//div[contains(@class, "suggest-input")]/label/div/div/input
 	pub async fn write_search_input(
 		driver: WebDriver,
 		search_query: &str,
@@ -159,7 +163,8 @@ impl dyn Settings {
 
 		Ok(())
 	}
-	//← Вакансии
+
+	//div[contains(@class, "suggest-dropdownItems")]/button[@data-marker="suggest/list/custom-option"][1]
 	pub async fn select_search_suggest(
 		driver: WebDriver,
 		select_suggest: i32,
