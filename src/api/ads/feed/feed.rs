@@ -122,26 +122,6 @@ impl dyn Feed {
 		Ok(imgs_arr)
 	}
 
-	pub async fn get_feed_parent_block(driver: WebDriver) -> Result<WebElement, WebDriverError> {
-		let main_arr = match <dyn Crawler>::find_elements(
-			driver.clone(),
-			"//div[contains(@class, \"index-content\")]".to_string(),
-			"//div[contains(@class, \"index-inner\")]".to_string(),
-		)
-		.await
-		{
-			Ok(elem) => elem,
-			Err(e) => {
-				println!("error while searching feed_parent block: {}", e);
-				Vec::new()
-			}
-		};
-
-		let parent = main_arr.get(0).expect("no feed_parent");
-
-		Ok(parent.to_owned())
-	}
-
 	pub async fn get_paid_img(
 		driver: WebDriver,
 		xpath: String,
