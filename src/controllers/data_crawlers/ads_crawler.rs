@@ -65,7 +65,7 @@ pub async fn ads_crawler() -> WebDriverResult<()> {
 	let _ = <dyn Settings>::write_search_input(driver.clone(), search_query).await?;
 	let _ = <dyn Settings>::select_search_suggest(
 		driver.clone(),
-		select_suggest.parse().unwrap_or(true),
+		select_suggest.parse().unwrap_or(1),
 		false,
 	)
 	.await?;
@@ -152,21 +152,21 @@ pub async fn ads_crawler() -> WebDriverResult<()> {
 			).await?;
 
 			let id = href.split("_").last().expect("no href");
-
+			//div[contains(@class, "items-items")]/div[contains(@class, "iva-item-root")][1]//*[@data-marker="item-title"]
 			let title = <dyn Feed>::get_text(driver.clone(),
-				format!("//div[contains(@class, \"items-items\")]/div[contains(@class, \"iva-item-root\")][{}]//*[@data-marker=\"item-title\"]/h3", count),
-				format!("//body/div[1]/div/buyer-location/div/div/div[2]/div/div[2]/div[3]/div[3]/div[3]/div[2]/div[contains(@class, \"iva-item-root\")][{}]//*[@data-marker=\"item-title\"]/h3", count)
+				format!("//div[contains(@class, \"items-items\")]/div[contains(@class, \"iva-item-root\")][{}]//*[@data-marker=\"item-title\"]", count),
+				format!("//body/div[1]/div/buyer-location/div/div/div[2]/div/div[2]/div[3]/div[3]/div[3]/div[2]/div[contains(@class, \"iva-item-root\")][{}]//*[@data-marker=\"item-title\"]", count)
 			).await?;
 
 			let price = <dyn Feed>::get_price(driver.clone(),
 				format!("//div[contains(@class, \"items-items\")]/div[contains(@class, \"iva-item-root\")][{}]//*[@data-marker=\"item-price\"]/meta[2]", count),
 				format!("//body/div[1]/div/buyer-location/div/div/div[2]/div/div[2]/div[3]/div[3]/div[3]/div[2]/div[contains(@class, \"iva-item-root\")][{}]/div/div/div[2]/div[3]/span/div/p/meta[2]", count)
 			).await?;
-
+			//div[contains(@class, "items-items")]/div[contains(@class, "iva-item-root")][2]/div/div/div//*[contains(@class, "iva-item-dateInfoStep")]//i
 			let _ = <dyn Feed>::move_mouse_to_paid(driver.clone(),
 				format!("//div[contains(@class, \"items-items\")]/div[contains(@class, \"iva-item-root\")][{}]/div/div/div//*[contains(@class, \"iva-item-dateInfoStep\")]//i", count),
 			).await?;
-
+			//div[contains(@class, "styles-entry")]/i[contains(@class, "style-vas-icon")]/img
 			let paid_imgs = <dyn Feed>::get_paid_imgs(driver.clone(),
 				"//div[contains(@class, \"styles-entry\")]/i[contains(@class, \"style-vas-icon\")]/img".to_string(),
 				"".to_string()
@@ -207,6 +207,8 @@ pub async fn ads_crawler() -> WebDriverResult<()> {
 				wtr.write_record(&[
 					my_ads,
 					format!("{}", utc.format("%d-%m-%Y_%H:%M:%S")).as_str(),
+					city_query,
+					search_query,
 					position.to_string().as_str(),
 					"",
 					"",
@@ -217,7 +219,6 @@ pub async fn ads_crawler() -> WebDriverResult<()> {
 					price.as_str(),
 					href.as_str(),
 					categories.as_str(),
-					search_query,
 					"",
 					"",
 					"",
@@ -227,7 +228,6 @@ pub async fn ads_crawler() -> WebDriverResult<()> {
 					"",
 					"",
 					"",
-					city_query,
 					"",
 					"",
 					"",
@@ -317,6 +317,8 @@ pub async fn ads_crawler() -> WebDriverResult<()> {
 				wtr.write_record(&[
 					my_ads,
 					format!("{}", utc.format("%d-%m-%Y_%H:%M:%S")).as_str(),
+					city_query,
+					search_query,
 					position.to_string().as_str(),
 					views.as_str(),
 					views_today.as_str(),
@@ -327,7 +329,6 @@ pub async fn ads_crawler() -> WebDriverResult<()> {
 					price.as_str(),
 					href.as_str(),
 					categories.as_str(),
-					search_query,
 					seller_id.as_str(),
 					seller_name.as_str(),
 					seller_type.as_str(),
@@ -337,7 +338,6 @@ pub async fn ads_crawler() -> WebDriverResult<()> {
 					reviews.as_str(),
 					seller_ads_count.as_str(),
 					seller_closed_ads_count.as_str(),
-					city_query,
 					address.as_str(),
 					description_string.as_str(),
 					imgs_count.as_str(),
@@ -345,13 +345,6 @@ pub async fn ads_crawler() -> WebDriverResult<()> {
 				])
 				.expect("write record err");
 			}
-		}
-
-		let parent = <dyn Feed>::get_feed_parent_block(driver.clone()).await?;
-
-		if parent.inner_html().await?.contains("других городов") {
-			println!("====== break ======");
-			break 'outer;
 		}
 
 		// пагинация

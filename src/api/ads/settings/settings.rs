@@ -162,17 +162,17 @@ impl dyn Settings {
 	//← Вакансии
 	pub async fn select_search_suggest(
 		driver: WebDriver,
-		select_suggest: bool,
+		select_suggest: i32,
 		vacancies: bool,
 	) -> Result<(), WebDriverError> {
-		if select_suggest {
+		if select_suggest > 0 {
 			let suggest_arr;
 
 			if !vacancies {
 				suggest_arr = match <dyn Crawler>::find_elements(
 					driver.clone(),
-					"//div[contains(@class, \"suggest-dropdownItems\")]/button[1]".to_string(),
-					"//body/div[3]/div[2]/div/div/div/div/div/div".to_string(),
+					format!("//div[contains(@class, \"suggest-dropdownItems\")]/button[@data-marker=\"suggest/list/custom-option\"][{}]", select_suggest),
+					format!("//button[@data-marker=\"suggest/list/custom-option\"][{}]", select_suggest),
 				)
 				.await
 				{

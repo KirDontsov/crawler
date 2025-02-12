@@ -57,7 +57,7 @@ pub async fn vacancies_crawler() -> WebDriverResult<()> {
 	let _ = <dyn Settings>::write_search_input(driver.clone(), search_query).await?;
 	let _ = <dyn Settings>::select_search_suggest(
 		driver.clone(),
-		select_suggest.parse().unwrap_or(true),
+		select_suggest.parse().unwrap_or(1),
 		true,
 	)
 	.await?;
@@ -138,9 +138,6 @@ pub async fn vacancies_crawler() -> WebDriverResult<()> {
 
 			block.scroll_into_view().await?;
 
-			//div[contains(@class, \"items-items\")]/div[contains(@class, \"iva-item-root\")][{}]/div/div/div/div[2]/div/a
-			//div[contains(@class, "items-items")]/div[contains(@class, "iva-item-root")][1]/div/div/div/div[2]/div/a
-
 			let href = <dyn Feed>::get_href(driver.clone(),
 				format!("//div[contains(@class, \"items-items\")]/div[contains(@class, \"iva-item-root\")][{}]//*[@data-marker=\"item-title\"]", count),
 				format!("//body/div[1]/div/buyer-location/div/div/div[2]/div/div[2]/div[3]/div[3]/div[3]/div[2]/div[contains(@class, \"iva-item-root\")][{}]//*[@data-marker=\"item-title\"]", count)
@@ -149,8 +146,8 @@ pub async fn vacancies_crawler() -> WebDriverResult<()> {
 			let id = href.split("_").last().expect("no href");
 
 			let title = <dyn Feed>::get_text(driver.clone(),
-				format!("//div[contains(@class, \"items-items\")]/div[contains(@class, \"iva-item-root\")][{}]//*[@data-marker=\"item-title\"]/h3", count),
-				format!("//body/div[1]/div/buyer-location/div/div/div[2]/div/div[2]/div[3]/div[3]/div[3]/div[2]/div[contains(@class, \"iva-item-root\")][{}]/div/div/div/div[2]/div/a/h3", count)
+				format!("//div[contains(@class, \"items-items\")]/div[contains(@class, \"iva-item-root\")][{}]//*[@data-marker=\"item-title\"]", count),
+				format!("//body/div[1]/div/buyer-location/div/div/div[2]/div/div[2]/div[3]/div[3]/div[3]/div[2]/div[contains(@class, \"iva-item-root\")][{}]//*[@data-marker=\"item-title\"]", count)
 			).await?;
 
 			let price = <dyn Feed>::get_price(driver.clone(),
@@ -202,6 +199,8 @@ pub async fn vacancies_crawler() -> WebDriverResult<()> {
 				wtr.write_record(&[
 					my_ads,
 					format!("{}", utc.format("%d-%m-%Y_%H:%M:%S")).as_str(),
+					city_query,
+					search_query,
 					position.to_string().as_str(),
 					"",
 					"",
@@ -212,7 +211,6 @@ pub async fn vacancies_crawler() -> WebDriverResult<()> {
 					"",
 					href.as_str(),
 					categories.as_str(),
-					search_query,
 					"",
 					"",
 					"",
@@ -222,7 +220,6 @@ pub async fn vacancies_crawler() -> WebDriverResult<()> {
 					"",
 					"",
 					"",
-					city_query,
 					"",
 					"",
 				])
@@ -301,6 +298,8 @@ pub async fn vacancies_crawler() -> WebDriverResult<()> {
 				wtr.write_record(&[
 					my_ads,
 					format!("{}", utc.format("%d-%m-%Y_%H:%M:%S")).as_str(),
+					city_query,
+					search_query,
 					position.to_string().as_str(),
 					views.as_str(),
 					views_today.as_str(),
@@ -311,7 +310,6 @@ pub async fn vacancies_crawler() -> WebDriverResult<()> {
 					price.as_str(),
 					href.as_str(),
 					categories.as_str(),
-					search_query,
 					seller_id.as_str(),
 					seller_name.as_str(),
 					seller_type.as_str(),
@@ -321,19 +319,11 @@ pub async fn vacancies_crawler() -> WebDriverResult<()> {
 					reviews.as_str(),
 					seller_ads_count.as_str(),
 					seller_closed_ads_count.as_str(),
-					city_query,
 					address.as_str(),
 					description_string.as_str(),
 				])
 				.expect("write record err");
 			}
-		}
-
-		let parent = <dyn Feed>::get_feed_parent_block(driver.clone()).await?;
-
-		if parent.inner_html().await?.contains("других городов") {
-			println!("====== break ======");
-			break 'outer;
 		}
 
 		// пагинация
