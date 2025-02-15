@@ -338,9 +338,9 @@ pub async fn ads_crawler() -> WebDriverResult<()> {
 					reviews.as_str(),
 					seller_ads_count.as_str(),
 					seller_closed_ads_count.as_str(),
+					imgs_count.as_str(),
 					address.as_str(),
 					description_string.as_str(),
-					imgs_count.as_str(),
 					phone.as_str(),
 				])
 				.expect("write record err");
