@@ -18,7 +18,6 @@ pub async fn ads_crawler() -> WebDriverResult<()> {
 	let fullscreen_mode = env::var("FULLSCREEN_MODE").expect("FULLSCREEN_MODE not set");
 	let accaunts_to_check_str = env::var("ACCAUNTS_TO_CHECK").unwrap_or("".to_string());
 	let ads_to_check_str = env::var("ADS_TO_CHECK").unwrap_or("".to_string());
-	let collect_phone = env::var("COLLECT_PHONE").expect("COLLECT_PHONE not set");
 	let visit_ads_page = env::var("VISIT_ADS_PAGE").expect("VISIT_ADS_PAGE not set");
 
 	let accaunts_to_check = if accaunts_to_check_str != "" {
@@ -214,12 +213,12 @@ pub async fn ads_crawler() -> WebDriverResult<()> {
 					"",
 					paid.to_string().as_str(),
 					"",
+					"",
 					id,
 					title.replace("\"", "").as_str(),
 					price.as_str(),
 					href.as_str(),
 					categories.as_str(),
-					"",
 					"",
 					"",
 					"",
@@ -271,6 +270,7 @@ pub async fn ads_crawler() -> WebDriverResult<()> {
 				let reviews = <dyn AdsAd>::get_reviews(driver.clone()).await?;
 				let register_date = <dyn AdsAd>::get_register_date(driver.clone()).await?;
 				let seller_ads_count = <dyn AdsAd>::get_seller_ads_count(driver.clone()).await?;
+				let delivery = <dyn AdsAd>::get_delivery(driver.clone()).await?;
 				let seller_closed_ads_count =
 					<dyn AdsAd>::get_seller_closed_ads_count(driver.clone()).await?;
 				let description_string = <dyn AdsAd>::get_description(driver.clone()).await?;
@@ -280,7 +280,6 @@ pub async fn ads_crawler() -> WebDriverResult<()> {
 				let (views, views_today) =
 					<dyn AdsAd>::get_views_and_views_today(driver.clone(), footer_article).await?;
 				let imgs_count = <dyn AdsAd>::get_images(driver.clone()).await?;
-				let phone = <dyn AdsAd>::get_phone(driver.clone(), collect_phone.parse().unwrap()).await?;
 
 				driver.close_window().await?;
 				driver.switch_to_window(handle.clone()).await?;
@@ -323,6 +322,7 @@ pub async fn ads_crawler() -> WebDriverResult<()> {
 					views.as_str(),
 					views_today.as_str(),
 					paid.to_string().as_str(),
+					delivery.to_string().as_str(),
 					date.as_str(),
 					id,
 					title.replace("\"", "").as_str(),
@@ -341,7 +341,6 @@ pub async fn ads_crawler() -> WebDriverResult<()> {
 					imgs_count.as_str(),
 					address.as_str(),
 					description_string.as_str(),
-					phone.as_str(),
 				])
 				.expect("write record err");
 			}

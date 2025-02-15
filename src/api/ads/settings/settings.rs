@@ -31,12 +31,13 @@ impl dyn Settings {
 		Ok(())
 	}
 
-	//div[contains(@class, "styles-module-controlIcon")]
+	//div[@data-marker=\"popup-location/region/clearButton\"]
+	//*[@data-marker="popup-location/region/clearButton"]
 	pub async fn click_clear_btn(driver: WebDriver) -> Result<(), WebDriverError> {
 		let clear_arr = match <dyn Crawler>::find_elements(
 			driver.clone(),
-			"//div[contains(@class, \"styles-module-controlIcon\")]".to_string(),
-			"//body/div[4]/div[43]/div/div[2]/div/div/div/div/div[1]/div[1]/div/div[2]".to_string(),
+			"//div[@data-marker=\"popup-location/region/clearButton\"]".to_string(),
+			"/html/body/div[3]/div[37]/div/div[2]/div/div/div/div/div[1]/div[1]/div/div[2]/span/button".to_string(),
 		)
 		.await
 		{
