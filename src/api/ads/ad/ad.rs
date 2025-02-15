@@ -277,7 +277,6 @@ impl dyn AdsAd {
 		Ok(res)
 	}
 
-	//div[contains(@class, \"style-seller-info-col\")]//*[@data-marker=\"delivery/landing\"]
 	//div[contains(@class, "style-seller-info-col")]//*[@data-marker="delivery/landing"]
 	pub async fn get_delivery(driver: WebDriver) -> Result<String, WebDriverError> {
 		// Описание
@@ -302,7 +301,7 @@ impl dyn AdsAd {
 				.await?
 				.replace("Об", "")
 				.replace("Авито", "")
-				.replace("Доставке", "Доставка")
+				.replace("Доставке", "*")
 				.replace(" ", ""),
 			None => "".to_string(),
 		};
