@@ -1,5 +1,4 @@
 use thirtyfour::prelude::*;
-use tokio::time::{sleep, Duration};
 
 use crate::shared::Crawler;
 

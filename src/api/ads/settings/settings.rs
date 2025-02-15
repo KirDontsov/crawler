@@ -10,7 +10,7 @@ impl dyn Settings {
 	pub async fn click_open_geo_modal_btn(driver: WebDriver) -> Result<(), WebDriverError> {
 		let region_arr = match <dyn Crawler>::find_elements(
 			driver.clone(),
-			"//div[@data-marker=\"search-form/change-location\"]".to_string(),
+			"//div[@data-marker=\"search-form/change-location\"]//a".to_string(),
 			"//body/div[1]/div/buyer-location/div/div/div[2]/div/div[1]/div/div/div[4]/div[1]/div"
 				.to_string(),
 		)
@@ -26,18 +26,17 @@ impl dyn Settings {
 		let region_btn = region_arr.get(0).expect("no open_geo_modal_btn");
 
 		region_btn.click().await?;
-		sleep(Duration::from_secs(5)).await;
+		sleep(Duration::from_secs(2)).await;
 
 		Ok(())
 	}
 
-	//div[@data-marker=\"popup-location/region/clearButton\"]
 	//*[@data-marker="popup-location/region/clearButton"]
 	pub async fn click_clear_btn(driver: WebDriver) -> Result<(), WebDriverError> {
 		let clear_arr = match <dyn Crawler>::find_elements(
 			driver.clone(),
-			"//div[@data-marker=\"popup-location/region/clearButton\"]".to_string(),
-			"/html/body/div[3]/div[37]/div/div[2]/div/div/div/div/div[1]/div[1]/div/div[2]/span/button".to_string(),
+			"//button[@data-marker=\"popup-location/region/clearButton\"]".to_string(),
+			"//body/div[3]/div[37]/div/div[2]/div/div/div/div/div[1]/div[1]/div/div[2]/span/button".to_string(),
 		)
 		.await
 		{
