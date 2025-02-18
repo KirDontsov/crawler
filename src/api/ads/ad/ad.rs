@@ -48,11 +48,12 @@ impl dyn AdsAd {
 		Ok((seller_id.to_string(), seller_name))
 	}
 
+	//*[@data-marker="messenger-button/link"]//span[contains(@class, "styles-module-secondLine")]
 	pub async fn get_answer_time(driver: WebDriver) -> Result<String, WebDriverError> {
 		let rating_arr = match <dyn Crawler>::find_elements(
 			driver.clone(),
-			"//div[contains(@class, \"messenger-button-buttonText\")]/div".to_string(),
-			"//body/div[1]/div/div[3]/div[1]/div/div[2]/div[3]/div/div[2]/div[1]/div/div/div[3]/div[1]/div/div/div[2]/div/div/div/a/div/div".to_string(),
+			"//*[@data-marker=\"messenger-button/link\"]//span[contains(@class, \"styles-module-secondLine\")]".to_string(),
+			"//*[text()[contains(.,'Отвечает за')]]".to_string(),
 		)
 		.await
 		{
@@ -278,13 +279,13 @@ impl dyn AdsAd {
 	}
 
 	//div[contains(@class, "style-seller-info-col")]//*[@data-marker="delivery/landing"]
+	//*[@data-marker="delivery-item-button-main"]
 	pub async fn get_delivery(driver: WebDriver) -> Result<String, WebDriverError> {
 		// Описание
 		let delivery_blocks_arr = match <dyn Crawler>::find_elements(
 			driver.clone(),
 			"//div[contains(@class, \"style-seller-info-col\")]//*[@data-marker=\"delivery/landing\"]".to_string(),
-			"//body/div[1]/div/div[3]/div[1]/div/div[2]/div[3]/div/div[2]/div/div/div/div[3]/div[1]/div/div/div/div/div[2]/div/div[3]/a"
-				.to_string(),
+			"//*[@data-marker=\"delivery-item-button-main\"]".to_string(),
 		)
 		.await
 		{
