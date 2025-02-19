@@ -10,7 +10,7 @@ impl dyn Feed {
 	pub async fn get_feed(driver: WebDriver) -> Result<Vec<WebElement>, WebDriverError> {
 		let blocks = match <dyn Crawler>::find_elements(
 			driver.clone(),
-			"//div[@data-marker=\"item\"]".to_string(),
+			"//div[contains(@class, \"items-items\")][contains(@class, \"items-itemsCarouselWidget\")=false]/div[@data-marker=\"item\"]".to_string(),
 			"//div[contains(@class, \"items-items\")][contains(@class, \"items-itemsCarouselWidget\")=false][1]/div[contains(@class, \"iva-item-root\")]".to_string(),
 		)
 		.await
@@ -25,10 +25,11 @@ impl dyn Feed {
 		Ok(blocks)
 	}
 
+	//div[contains(@class, "items-items")][contains(@class, "items-itemsCarouselWidget")=false][1]/div[@data-marker="item"]
 	pub async fn get_first_items_block_feed(driver: WebDriver) -> Result<Vec<WebElement>, WebDriverError> {
 		let blocks = match <dyn Crawler>::find_elements(
 			driver.clone(),
-			"//div[contains(@class, \"items-items\")][contains(@class, \"items-itemsCarouselWidget\")=false][1]//div[@data-marker=\"item\"]".to_string(),
+			"//div[contains(@class, \"items-items\")][contains(@class, \"items-itemsCarouselWidget\")=false][1]/div[@data-marker=\"item\"]".to_string(),
 			"//div[contains(@class, \"items-items\")][contains(@class, \"items-itemsCarouselWidget\")=false][1]/div[contains(@class, \"iva-item-root\")]".to_string(),
 		)
 		.await
