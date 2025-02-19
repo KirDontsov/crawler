@@ -304,8 +304,8 @@ impl dyn AdsAd {
 				.replace("Авито", "")
 				.replace("Доставке", "*")
 				.replace("Купить", "")
-				.replace("с", "")
 				.replace("доставкой", "*")
+				.replace("с", "")
 				.replace(" ", ""),
 			None => "".to_string(),
 		};
