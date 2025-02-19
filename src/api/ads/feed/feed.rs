@@ -6,11 +6,30 @@ use crate::shared::Crawler;
 pub trait Feed {}
 
 impl dyn Feed {
+	//div[@data-marker="item"]
 	pub async fn get_feed(driver: WebDriver) -> Result<Vec<WebElement>, WebDriverError> {
 		let blocks = match <dyn Crawler>::find_elements(
 			driver.clone(),
-			"//div[contains(@class, \"items-items\")][1]/div[contains(@class, \"iva-item-root\")]".to_string(),
-			"//body/div[1]/div/buyer-location/div/div/div[2]/div/div[2]/div[3]/div[3]/div[4]/div[2]/div[contains(@class, \"iva-item-root\")]".to_string(),
+			"//div[@data-marker=\"item\"]".to_string(),
+			"//div[contains(@class, \"items-items\")][contains(@class, \"items-itemsCarouselWidget\")=false][1]/div[contains(@class, \"iva-item-root\")]".to_string(),
+		)
+		.await
+		{
+			Ok(res) => res,
+			Err(e) => {
+				println!("error while searching blocks block: {}", e);
+				Vec::new()
+			}
+		};
+
+		Ok(blocks)
+	}
+
+	pub async fn get_first_items_block_feed(driver: WebDriver) -> Result<Vec<WebElement>, WebDriverError> {
+		let blocks = match <dyn Crawler>::find_elements(
+			driver.clone(),
+			"//div[contains(@class, \"items-items\")][contains(@class, \"items-itemsCarouselWidget\")=false][1]//div[@data-marker=\"item\"]".to_string(),
+			"//div[contains(@class, \"items-items\")][contains(@class, \"items-itemsCarouselWidget\")=false][1]/div[contains(@class, \"iva-item-root\")]".to_string(),
 		)
 		.await
 		{

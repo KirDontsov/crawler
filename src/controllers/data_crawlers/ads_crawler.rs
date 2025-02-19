@@ -105,6 +105,7 @@ pub async fn ads_crawler() -> WebDriverResult<()> {
 		}
 
 		let blocks = <dyn Feed>::get_feed(driver.clone()).await?;
+		let first_items_block_feed = <dyn Feed>::get_first_items_block_feed(driver.clone()).await?;
 
 		if blocks.len() == 0 {
 			println!("====== break ======");
@@ -114,8 +115,20 @@ pub async fn ads_crawler() -> WebDriverResult<()> {
 		let last = blocks.last().expect("no blocks");
 		last.scroll_into_view().await?;
 
+		let number_of_blocks_in_first_column = first_items_block_feed.len();
+		let mut items_block_number;
+		let mut count;
+
 		for (i, block) in blocks.clone().into_iter().enumerate() {
-			let count = i + 1;
+			// вначале мы идем по blocks.len() - 50 = 18 первых айтемов
+			// как только мы их прошли, нам нужно снова переключиться на 1, но уже во втором блоке
+			if number_of_blocks_in_first_column - (i + 1) < 10000 {
+				items_block_number = 1;
+				count = i + 1;
+			} else {
+				items_block_number = 2;
+				count = (i + 1) - number_of_blocks_in_first_column
+			}
 
 			position = count - 1;
 			if j != 0 {
@@ -145,25 +158,26 @@ pub async fn ads_crawler() -> WebDriverResult<()> {
 
 			block.scroll_into_view().await?;
 
+			//div[contains(@class, "items-items")]/div[@data-marker="item"][{}]//*[@data-marker="item-title"]
 			let href = <dyn Feed>::get_href(driver.clone(),
-				format!("//div[contains(@class, \"items-items\")]/div[contains(@class, \"iva-item-root\")][{}]//*[@data-marker=\"item-title\"]", count),
+				format!("//div[contains(@class, \"items-items\")][contains(@class, 'items-itemsCarouselWidget')=false][{}]//div[@data-marker=\"item\"][{}]//*[@data-marker=\"item-title\"]", items_block_number, count),
 				format!("//body/div[1]/div/buyer-location/div/div/div[2]/div/div[2]/div[3]/div[3]/div[3]/div[2]/div[contains(@class, \"iva-item-root\")][{}]//*[@data-marker=\"item-title\"]", count)
 			).await?;
 
 			let id = href.split("_").last().expect("no href");
 			//div[contains(@class, "items-items")]/div[contains(@class, "iva-item-root")][1]//*[@data-marker="item-title"]
 			let title = <dyn Feed>::get_text(driver.clone(),
-				format!("//div[contains(@class, \"items-items\")]/div[contains(@class, \"iva-item-root\")][{}]//*[@data-marker=\"item-title\"]", count),
+				format!("//div[contains(@class, \"items-items\")][contains(@class, 'items-itemsCarouselWidget')=false][{}]//div[@data-marker=\"item\"][{}]//*[@data-marker=\"item-title\"]", items_block_number, count),
 				format!("//body/div[1]/div/buyer-location/div/div/div[2]/div/div[2]/div[3]/div[3]/div[3]/div[2]/div[contains(@class, \"iva-item-root\")][{}]//*[@data-marker=\"item-title\"]", count)
 			).await?;
 
 			let price = <dyn Feed>::get_price(driver.clone(),
-				format!("//div[contains(@class, \"items-items\")]/div[contains(@class, \"iva-item-root\")][{}]//*[@data-marker=\"item-price\"]/meta[2]", count),
+				format!("//div[contains(@class, \"items-items\")][contains(@class, 'items-itemsCarouselWidget')=false][{}]//div[@data-marker=\"item\"][{}]//*[@data-marker=\"item-price\"]/meta[2]", items_block_number, count),
 				format!("//body/div[1]/div/buyer-location/div/div/div[2]/div/div[2]/div[3]/div[3]/div[3]/div[2]/div[contains(@class, \"iva-item-root\")][{}]/div/div/div[2]/div[3]/span/div/p/meta[2]", count)
 			).await?;
 			//div[contains(@class, "items-items")]/div[contains(@class, "iva-item-root")][2]/div/div/div//*[contains(@class, "iva-item-dateInfoStep")]//i
 			let _ = <dyn Feed>::move_mouse_to_paid(driver.clone(),
-				format!("//div[contains(@class, \"items-items\")]/div[contains(@class, \"iva-item-root\")][{}]/div/div/div//*[contains(@class, \"iva-item-dateInfoStep\")]//i", count),
+				format!("//div[contains(@class, \"items-items\")][contains(@class, 'items-itemsCarouselWidget')=false][{}]//div[@data-marker=\"item\"][{}]/div/div/div//*[contains(@class, \"iva-item-dateInfoStep\")]//i", items_block_number, count)
 			).await?;
 			//div[contains(@class, "styles-entry")]/i[contains(@class, "style-vas-icon")]/img
 			let paid_imgs = <dyn Feed>::get_paid_imgs(driver.clone(),
@@ -238,7 +252,7 @@ pub async fn ads_crawler() -> WebDriverResult<()> {
 				let handle = driver.window().await?;
 
 				let _ = <dyn Feed>::click_ad_title_link(driver.clone(),
-					format!("//div[contains(@class, \"items-items\")]/div[contains(@class, \"iva-item-root\")][{}]//*[@data-marker=\"item-title\"]", count),
+					format!("//div[contains(@class, \"items-items\")][contains(@class, \"items-itemsCarouselWidget\")=false][{}]//div[@data-marker=\"item\"][{}]//*[@data-marker=\"item-title\"]", items_block_number, count),
 					format!("//body/div[1]/div/buyer-location/div/div/div[2]/div/div[2]/div[3]/div[3]/div[3]/div[2]/div[contains(@class, \"iva-item-root\")][{}]//*[@data-marker=\"item-title\"]", count)
 				).await?;
 
