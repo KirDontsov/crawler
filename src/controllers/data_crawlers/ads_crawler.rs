@@ -78,7 +78,7 @@ pub async fn ads_crawler() -> WebDriverResult<()> {
 	println!("Query: {}", &search_query);
 	println!("ads_count: {}", ads_count.clone());
 
-	let mut position: usize = 0;
+	let mut position: usize;
 
 	let ads_count_res = if ads_count > 50.0 {
 		(ads_count / 50.0).ceil() as i32
