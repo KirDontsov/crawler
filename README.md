@@ -1,4 +1,6 @@
-# crawler
+# ADS POSITION SCANNER
+
+Сканнер позиций объявлений
 
 ## Запуск под Linux
 
