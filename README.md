@@ -77,14 +77,24 @@
 
 
 
+### ВНИМАНИЕ!!! Под Windows программу не адаптировали, не проверяли.
+
+
+
+### Не забывайте обновлять драйвер браузера chromedriver  https://googlechromelabs.github.io/chrome-for-testing/
+
+В результате Вы получите файл.csv в папке /output
+Готовые формулы, возьмите из [/assets/example.xlsx](https://github.com/KirDontsov/crawler/blob/master/assets/example.xlsx) , перенесите их простым копированием.
+Можно запускать сканер параллельно в двух терминалах.
+
+### P.S. Возможны сбои в работе, Авито периодически вносит изменение в интерфейс. Через сутки если сканер не работает можете написать нам вложив ссылку, скрин, и описание проблемы.
+
+
+
 ### DEV NOTES
 
 ```cargo watch -q -c -w src/ -x run``` - run for dev
 
 ```cargo r -r``` - run for prod
 
-```./chromedriver --port=9515 --disable-gpu --dns-prefetch-disable --disable-extensions --no-sandbox enable-automation``` - run chrome driver, если вылетает, нужно обновить на более новую версию chromedriver-mac-x64
-
-
-
-### ВНИМАНИЕ!!! Под Windows программу не адаптировали, не проверяли.
+```./chromedriver --port=9515 --disable-gpu --dns-prefetch-disable --disable-extensions --no-sandbox enable-automation``` - run chrome driver, если вылетает, нужно обновить на более новую версию
