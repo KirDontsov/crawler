@@ -5,7 +5,8 @@
 Все собранные данные сохраняются в формате.csv.
 Для корректной работы сканера необходимо ознакомиться с рекомендациями, которые можно найти в конфигурационном файле.env. После установки этот файл следует переименовать из .env.example.
 
-![example](https://github.com/KirDontsov/crawler/blob/master/assets/example.jpg?raw=true)
+![example](https://github.com/KirDontsov/crawler/blob/master/assets/example.jpeg?raw=true)
+
 
 
 ## Запуск под Linux
