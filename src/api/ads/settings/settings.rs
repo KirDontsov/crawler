@@ -133,15 +133,15 @@ impl dyn Settings {
 		Ok(())
 	}
 
-	//div[contains(@class, "suggest-input")]/label/div/div/input
+	//div[contains(@class, "suggest-input")]/label/div//input
 	pub async fn write_search_input(
 		driver: WebDriver,
 		search_query: &str,
 	) -> Result<(), WebDriverError> {
 		// заполнение поиска
 		let input_arr = match <dyn Crawler>::find_elements(driver.clone(),
-			"//div[contains(@class, \"suggest-input\")]/label/div/div/input".to_string(),
-			"//body/div[1]/div/div[4]/div/div[1]/div/div/div[3]/div[2]/div[1]/div/div/label/div/div/input".to_string()
+			"//div[contains(@class, \"suggest-input\")]/label/div//input".to_string(),
+			"//body/div[1]/div/div[4]/div/div[1]/div/div/div[3]/div[2]/div[1]/div/div/label/div//input".to_string()
 		).await {
 			Ok(res) => res,
 			Err(e) => {
