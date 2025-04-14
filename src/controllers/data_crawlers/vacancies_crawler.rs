@@ -3,6 +3,7 @@ use csv::Writer;
 use std::env;
 use thirtyfour::prelude::*;
 use tokio::time::{sleep, Duration};
+use std::fs;
 
 use crate::api::{AdsAd, Feed, Header, Settings};
 use crate::shared::{Constants, Crawler, Driver, Firewall};
@@ -18,6 +19,7 @@ pub async fn vacancies_crawler() -> WebDriverResult<()> {
 	let fullscreen_mode = env::var("FULLSCREEN_MODE").expect("FULLSCREEN_MODE not set");
 	let ads_to_check_str = env::var("ADS_TO_CHECK").unwrap_or("".to_string());
 	let visit_ads_page = env::var("VISIT_ADS_PAGE").expect("VISIT_ADS_PAGE not set");
+	let report_dir = env::var("REPORT_DIRECTORY").expect("REPORT_DIRECTORY not set");
 
 	let ads_to_check = if ads_to_check_str != "" {
 		ads_to_check_str.split(" ").collect::<Vec<&str>>()
@@ -27,8 +29,11 @@ pub async fn vacancies_crawler() -> WebDriverResult<()> {
 
 	let utc: DateTime<Utc> = Utc::now() + chrono::Duration::try_hours(3).expect("hours err");
 
+	fs::create_dir_all(format!("./output{}", &report_dir))?;
+
 	let mut wtr = Writer::from_path(format!(
-		"./output/vacancies_{}_{}_{}.csv",
+		"./output{}/ads_{}_{}_{}.csv",
+		&report_dir,
 		utc.format("%d-%m-%Y_%H-%M-%S"),
 		search_query.replace(" ", "_"),
 		city_query.replace(" ", "_")
