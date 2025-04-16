@@ -96,11 +96,12 @@ impl dyn AdsAd {
 		Ok(seller_type.replace("·", "").replace("  ", ""))
 	}
 
+	//div[contains(@class, "style-seller-info-rating-score")]
 	pub async fn get_rating(driver: WebDriver) -> Result<String, WebDriverError> {
 		let rating_arr = match <dyn Crawler>::find_elements(
 			driver.clone(),
-			"//div[contains(@class, \"style-seller-info-rating-score\")]".to_string(),
-			"//body/div[1]/div/div[3]/div[1]/div/div[2]/div[3]/div/div[2]/div[1]/div/div/div[3]/div[2]/div/div/div/div[1]/div[1]/div[1]/div[1]/div[2]/span[1]".to_string(),
+			"//*[contains(@class, \"style-seller-info-rating-score\")]".to_string(),
+			"//body/div[1]/div/div[3]/div[1]/div/div[2]/div[3]/div/div[2]/div[1]/div/div/div[4]/div/div/div/div/div[1]/div[1]/div/div/div[2]/span[1]".to_string(),
 		)
 		.await
 		{

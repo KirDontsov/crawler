@@ -216,4 +216,43 @@ impl dyn Feed {
 
 		Ok(())
 	}
+
+	pub async fn get_seller_id_and_name(
+		driver: WebDriver,
+		xpath: String,
+		xpath2: String,
+	) -> Result<(String, String), WebDriverError> {
+		let seller_name_arr = match <dyn Crawler>::find_elements(driver.clone(), xpath, xpath2).await {
+			Ok(res) => res,
+			Err(e) => {
+				println!("error while searching seller_name block: {}", e);
+				Vec::new()
+			}
+		};
+
+		let seller_link_id_full = match seller_name_arr.get(0) {
+			Some(x) => x.attr("href").await?.expect("no seller_link_id"),
+			None => "".to_string(),
+		};
+
+		let seller_id = match seller_link_id_full.split("?").collect::<Vec<&str>>().get(0) {
+			Some(x) => {
+				if x.contains("avito.ru") {
+					x.to_owned().to_string()
+				} else if *x != "" {
+					format!("https://avito.ru{}", x)
+				} else {
+					"".to_string()
+				}
+			}
+			None => "".to_string(),
+		};
+
+		let seller_name = match seller_name_arr.get(0) {
+			Some(x) => x.text().await?,
+			None => "".to_string(),
+		};
+
+		Ok((seller_id.to_string(), seller_name))
+	}
 }

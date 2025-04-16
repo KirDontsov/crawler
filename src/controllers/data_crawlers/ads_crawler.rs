@@ -193,6 +193,12 @@ pub async fn ads_crawler() -> WebDriverResult<()> {
 				format!("//div[contains(@class, \"items-items\")][contains(@class, 'items-itemsCarouselWidget')=false][{}]/div[@data-marker=\"item\"][{}]//*[@data-marker=\"item-price\"]/meta[2]", items_block_number, count),
 				format!("//body/div[1]/div/buyer-location/div/div/div[2]/div/div[2]/div[3]/div[3]/div[3]/div[2]/div[contains(@class, \"iva-item-root\")][{}]/div/div/div[2]/div[3]/span/div/p/meta[2]", count)
 			).await?;
+			//div[contains(@class, "iva-item-sellerInfo")]//a
+			let (seller_id, seller_name) = <dyn Feed>::get_seller_id_and_name(driver.clone(),
+				format!("//div[contains(@class, \"iva-item-sellerInfo\")][contains(@class, 'items-itemsCarouselWidget')=false][{}]/div[@data-marker=\"item\"][{}]//*[@data-marker=\"item-price\"]/meta[2]", items_block_number, count),
+				format!("//body/div[1]/div/buyer-location/div/div/div/div[2]/div/div[2]/div[3]/div[3]/div[4]/div[2]/div[{}]/div/div/div[3]/div/div[1]/div/div[1]/a", count)
+			).await?;
+
 			//div[contains(@class, "items-items")]/div[contains(@class, "iva-item-root")][2]/div/div/div//*[contains(@class, "iva-item-dateInfoStep")]//i
 			let _ = <dyn Feed>::move_mouse_to_paid(driver.clone(),
 				format!("//div[contains(@class, \"items-items\")][contains(@class, 'items-itemsCarouselWidget')=false][{}]/div[@data-marker=\"item\"][{}]/div/div/div//*[contains(@class, \"iva-item-dateInfoStep\")]//i", items_block_number, count)
@@ -294,8 +300,8 @@ pub async fn ads_crawler() -> WebDriverResult<()> {
 					}
 				}
 
-				let (seller_id, seller_name) =
-					<dyn AdsAd>::get_seller_name_arr(driver.clone()).await?;
+				// let (seller_id, seller_name) =
+				// 	<dyn AdsAd>::get_seller_name_arr(driver.clone()).await?;
 				let seller_type = <dyn AdsAd>::get_seller_type(driver.clone()).await?;
 				let answer_time = <dyn AdsAd>::get_answer_time(driver.clone()).await?;
 				let rating = <dyn AdsAd>::get_rating(driver.clone()).await?;
