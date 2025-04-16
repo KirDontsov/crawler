@@ -8,6 +8,7 @@ impl dyn AdsAd {
 	pub async fn get_seller_name_arr(
 		driver: WebDriver,
 	) -> Result<(String, String), WebDriverError> {
+		//div[contains(@class, "style-seller-info-name")]//a
 		let seller_name_arr = match <dyn Crawler>::find_elements(
 			driver.clone(),
 			"//div[contains(@class, \"style-seller-info-name\")]//a".to_string(),

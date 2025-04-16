@@ -22,6 +22,7 @@ pub async fn ads_crawler() -> WebDriverResult<()> {
 	let ads_to_check_str = env::var("ADS_TO_CHECK").unwrap_or("".to_string());
 	let visit_ads_page = env::var("VISIT_ADS_PAGE").expect("VISIT_ADS_PAGE not set");
 	let report_dir = env::var("REPORT_DIRECTORY").expect("REPORT_DIRECTORY not set");
+	let login_delay = env::var("LOGIN_DELAY").unwrap_or("2".to_string());
 
 	let accaunts_to_check = if accaunts_to_check_str != "" {
 		accaunts_to_check_str.split(" ").collect::<Vec<&str>>()
@@ -60,7 +61,7 @@ pub async fn ads_crawler() -> WebDriverResult<()> {
 
 	driver.goto(url).await?;
 
-	sleep(Duration::from_secs(2)).await;
+	sleep(Duration::from_secs(login_delay.parse::<u64>().unwrap_or(0))).await;
 
 	let _ = <dyn Settings>::click_open_geo_modal_btn(driver.clone()).await?;
 	let _ = <dyn Settings>::click_clear_btn(driver.clone()).await?;
