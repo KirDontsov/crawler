@@ -369,24 +369,6 @@ impl dyn AdsAd {
 		Ok(address)
 	}
 
-	pub async fn check_footer_article(driver: WebDriver) -> Result<bool, WebDriverError> {
-		let footer_article = match <dyn Crawler>::check_if_block_exists(
-			driver.clone(),
-			"//article[contains(@class, \"style-item-footer-text\")]".to_string(),
-			"".to_string(),
-		)
-		.await
-		{
-			Ok(elem) => elem,
-			Err(e) => {
-				println!("error while searching footer_article block: {}", e);
-				false
-			}
-		};
-
-		Ok(footer_article)
-	}
-
 	pub async fn get_images(driver: WebDriver) -> Result<String, WebDriverError> {
 		let imgs_blocks_exists = match <dyn Crawler>::check_if_block_exists(
 			driver.clone(),
@@ -424,155 +406,88 @@ impl dyn AdsAd {
 
 	pub async fn get_date(
 		driver: WebDriver,
-		footer_article: bool,
 	) -> Result<String, WebDriverError> {
-		let date;
+		let date_arr = match <dyn Crawler>::find_elements(
+			driver.clone(),
+			"//*[@data-marker=\"item-view/item-date\"]".to_string(),
+			"//body/div[1]/div/div[4]/div[1]/div/div[2]/div[3]/div/div[1]/div/div[2]/div[3]/div/div/div[1]/article/p/span[2]".to_string(),
+		)
+		.await
+		{
+			Ok(res) => res,
+			Err(e) => {
+				println!("error while searching date block: {}", e);
+				Vec::new()
+			}
+		};
 
-		if !footer_article {
-			let date_arr = match <dyn Crawler>::find_elements(
-				driver.clone(),
-				"//div[contains(@class, \"style-item-footer-text\")]/article/p/span[2]".to_string(),
-				"//body/div[1]/div/div[3]/div[1]/div/div[2]/div[3]/div/div[1]/div[2]/div[4]/div/article/p/span[2]".to_string(),
-			)
-			.await
-			{
-				Ok(res) => res,
-				Err(e) => {
-					println!("error while searching date block: {}", e);
-					Vec::new()
-				}
-			};
-
-			date = match date_arr.get(0) {
-				Some(x) => x.text().await?.replace("На Авито ", "").replace("· ", ""),
-				None => "".to_string(),
-			};
-		} else {
-			let date_arr = match <dyn Crawler>::find_elements(
-				driver.clone(),
-				"//article[contains(@class, \"style-item-footer-text\")]/p/span[2]".to_string(),
-				"//body/div[1]/div/div[3]/div[1]/div/div[2]/div[3]/div/div[1]/div[1]/div[5]/div/div/div[1]/article/p/span[2]".to_string(),
-			)
-			.await
-			{
-				Ok(res) => res,
-				Err(e) => {
-					println!("error while searching date block: {}", e);
-					Vec::new()
-				}
-			};
-
-			date = match date_arr.get(0) {
-				Some(x) => x.text().await?.replace("На Авито ", "").replace("· ", ""),
-				None => "".to_string(),
-			};
-		}
+		let date = match date_arr.get(0) {
+			Some(x) => x.text().await?.replace("На Авито ", "").replace("· ", ""),
+			None => "".to_string(),
+		};
 
 		Ok(date)
 	}
 
 	pub async fn get_views_and_views_today(
 		driver: WebDriver,
-		footer_article: bool,
 	) -> Result<(String, String), WebDriverError> {
-		let views;
-		let views_today;
+		let views_arr = match <dyn Crawler>::find_elements(
+			driver.clone(),
+			"//*[@data-marker=\"item-view/total-views\"]".to_string(),
+			"//body/div[1]/div/div[4]/div[1]/div/div[2]/div[3]/div/div[1]/div/div[2]/div[3]/div/div/div[1]/article/p/span[3]/span[1]".to_string(),
+		)
+		.await
+		{
+			Ok(res) => res,
+			Err(e) => {
+				println!("error while searching views_and_views_today block: {}", e);
+				Vec::new()
+			}
+		};
 
-		if !footer_article {
-			let views_arr = match <dyn Crawler>::find_elements(
-				driver.clone(),
-				"//div[contains(@class, \"style-item-footer-text\")]/article/p/span[3]".to_string(),
-				"//body/div[1]/div/div[3]/div[1]/div/div[2]/div[3]/div/div[1]/div[2]/div[4]/div/article/p/span[3]".to_string(),
-			)
-			.await
-			{
-				Ok(res) => res,
-				Err(e) => {
-					println!("error while searching views_and_views_today block: {}", e);
-					Vec::new()
-				}
-			};
+		let views_total = match views_arr.get(0) {
+			Some(x) => x
+				.text()
+				.await?
+				.replace("просмотра", "")
+				.replace("просмотров", "")
+				.replace("просмотр", "")
+				.replace("· ", "")
+				.replace("  ", "")
+				.replace(" ", "")
+				.replace("&nbsp;", ""),
+			None => "".to_string(),
+		};
 
-			let views_full = match views_arr.get(0) {
-				Some(x) => x
-					.text()
-					.await?
-					.replace("просмотра", "")
-					.replace("просмотров", "")
-					.replace("просмотр", "")
-					.replace("· ", "")
-					.replace("  ", ""),
-				None => "".to_string(),
-			};
+		let views_today_arr = match <dyn Crawler>::find_elements(
+			driver.clone(),
+			"//*[@data-marker=\"item-view/today-views\"]".to_string(),
+			"//body/div[1]/div/div[4]/div[1]/div/div[2]/div[3]/div/div[1]/div/div[2]/div[3]/div/div/div[1]/article/p/span[3]/span[2]".to_string(),
+		)
+		.await
+		{
+			Ok(res) => res,
+			Err(e) => {
+				println!("error while searching views_and_views_today block: {}", e);
+				Vec::new()
+			}
+		};
 
-			let views_str = views_full.split("+").collect::<Vec<&str>>();
-			views = match views_str.get(0) {
-				Some(x) => x.replace("(", "").replace("  ", ""),
-				None => "".to_string(),
-			};
+		let views_today = match views_today_arr.get(0) {
+			Some(x) => x
+				.text()
+				.await?
+				.replace("(", "")
+				.replace("+", "")
+				.replace(" ", "")
+				.replace("  ", "")
+				.replace("сегодня", "")
+				.replace(")", "")
+				.replace("&nbsp;", ""),
+			None => "".to_string(),
+		};
 
-			views_today = match views_str.get(1) {
-				Some(x) => x
-					.replace(")", "")
-					.replace("+", "")
-					.replace("сегодня", "")
-					.replace(" ", ""),
-				None => "".to_string(),
-			};
-		} else {
-			let views_arr = match <dyn Crawler>::find_elements(
-				driver.clone(),
-				"//article[contains(@class, \"style-item-footer-text\")]/p/span[3]/span[1]".to_string(),
-				"//body/div[1]/div/div[3]/div[1]/div/div[2]/div[3]/div/div[1]/div[1]/div[5]/div/div/div[1]/article/p/span[3]/span[1]".to_string(),
-			)
-			.await
-			{
-				Ok(res) => res,
-				Err(e) => {
-					println!("error while searching views_and_views_today block: {}", e);
-					Vec::new()
-				}
-			};
-
-			views = match views_arr.get(0) {
-				Some(x) => x
-					.text()
-					.await?
-					.replace("просмотра", "")
-					.replace("просмотров", "")
-					.replace("просмотр", "")
-					.replace("· ", "")
-					.replace("  ", ""),
-				None => "".to_string(),
-			};
-
-			let views_today_arr = match <dyn Crawler>::find_elements(
-				driver.clone(),
-				"//article[contains(@class, \"style-item-footer-text\")]/p/span[3]/span[2]".to_string(),
-				"//body/div[1]/div/div[3]/div[1]/div/div[2]/div[3]/div/div[1]/div[1]/div[5]/div/div/div[1]/article/p/span[3]/span[2]".to_string(),
-			)
-			.await
-			{
-				Ok(res) => res,
-				Err(e) => {
-					println!("error while searching views block: {}", e);
-					Vec::new()
-				}
-			};
-
-			views_today = match views_today_arr.get(0) {
-				Some(x) => x
-					.text()
-					.await?
-					.replace("(", "")
-					.replace(")", "")
-					.replace("+", "")
-					.replace("сегодня", "")
-					.replace(" ", ""),
-				None => "".to_string(),
-			};
-		}
-
-		Ok((views, views_today))
+		Ok((views_total, views_today))
 	}
 }

@@ -313,10 +313,9 @@ pub async fn ads_crawler() -> WebDriverResult<()> {
 					<dyn AdsAd>::get_seller_closed_ads_count(driver.clone()).await?;
 				let description_string = <dyn AdsAd>::get_description(driver.clone()).await?;
 				let address = <dyn AdsAd>::get_address(driver.clone()).await?;
-				let footer_article = <dyn AdsAd>::check_footer_article(driver.clone()).await?;
-				let date = <dyn AdsAd>::get_date(driver.clone(), footer_article).await?;
+				let date = <dyn AdsAd>::get_date(driver.clone()).await?;
 				let (views, views_today) =
-					<dyn AdsAd>::get_views_and_views_today(driver.clone(), footer_article).await?;
+					<dyn AdsAd>::get_views_and_views_today(driver.clone()).await?;
 				let imgs_count = <dyn AdsAd>::get_images(driver.clone()).await?;
 
 				driver.close_window().await?;
