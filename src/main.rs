@@ -1,15 +1,16 @@
 mod api;
 mod controllers;
 mod shared;
+mod config;
+mod error;
 
 use dotenv::dotenv;
 use std::env;
-use std::error::Error;
 
 use crate::controllers::{ads_crawler, vacancies_crawler};
 
 #[tokio::main]
-async fn main() -> Result<(), Box<dyn Error>> {
+async fn main() -> Result<(), error::CrawlerError> {
 	dotenv().ok();
 
 	if std::env::var_os("RUST_LOG").is_none() {

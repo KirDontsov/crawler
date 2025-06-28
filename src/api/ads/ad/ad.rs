@@ -51,7 +51,7 @@ impl dyn AdsAd {
 
 	//*[@data-marker="messenger-button/link"]//span[contains(@class, "styles-module-secondLine")]
 	pub async fn get_answer_time(driver: WebDriver) -> Result<String, WebDriverError> {
-		let rating_arr = match <dyn Crawler>::find_elements(
+		let answer_time_arr = match <dyn Crawler>::find_elements(
 			driver.clone(),
 			"//*[@data-marker=\"messenger-button/link\"]//span[contains(@class, \"styles-module-secondLine\")]".to_string(),
 			"//*[text()[contains(.,'Отвечает за')]]".to_string(),
@@ -65,18 +65,18 @@ impl dyn AdsAd {
 			}
 		};
 
-		let rating = match rating_arr.get(0) {
+		let answer_time = match answer_time_arr.get(0) {
 			Some(x) => x.text().await?,
 			None => "".to_string(),
 		};
 
-		Ok(rating)
+		Ok(answer_time)
 	}
 
 	pub async fn get_seller_type(driver: WebDriver) -> Result<String, WebDriverError> {
 		let seller_type_arr = match <dyn Crawler>::find_elements(
 			driver.clone(),
-			"//div[contains(@class, \"style-seller-info-col\")]//*[@data-marker=\"seller-info/label\"]".to_string(),
+			"//*[@data-marker='item-view/seller-info']//*[@data-marker='seller-info/label']".to_string(),
 			"//body/div[1]/div/div[3]/div[1]/div/div[2]/div[3]/div/div[2]/div[1]/div/div/div[3]/div[2]/div/div/div/div[1]/div/div[1]/div[2]".to_string(),
 		)
 		.await
@@ -96,11 +96,11 @@ impl dyn AdsAd {
 		Ok(seller_type.replace("·", "").replace("  ", ""))
 	}
 
-	//div[contains(@class, "style-seller-info-rating-score")]
+	//div[contains(@class, "seller-info-rating")]
 	pub async fn get_rating(driver: WebDriver) -> Result<String, WebDriverError> {
 		let rating_arr = match <dyn Crawler>::find_elements(
 			driver.clone(),
-			"//*[contains(@class, \"style-seller-info-rating-score\")]".to_string(),
+			"//*[contains(@class, 'seller-info-rating')]/span".to_string(),
 			"//body/div[1]/div/div[3]/div[1]/div/div[2]/div[3]/div/div[2]/div[1]/div/div/div[4]/div/div/div/div/div[1]/div[1]/div/div/div[2]/span[1]".to_string(),
 		)
 		.await
@@ -123,7 +123,7 @@ impl dyn AdsAd {
 	pub async fn get_reviews(driver: WebDriver) -> Result<String, WebDriverError> {
 		let reviews_arr = match <dyn Crawler>::find_elements(
 			driver.clone(),
-			"//div[contains(@class, \"style-seller-info-rating\")]/a".to_string(),
+			"//div[contains(@class, 'seller-info-rating')]/a".to_string(),
 			"//body/div[1]/div/div[3]/div[1]/div/div[2]/div[3]/div/div[2]/div[1]/div/div/div[3]/div[2]/div/div/div/div[1]/div[1]/div[1]/div[1]/div[2]/a".to_string(),
 		)
 		.await
@@ -170,7 +170,7 @@ impl dyn AdsAd {
 		if !seller_info_redesign {
 			register_date_arr = match <dyn Crawler>::find_elements(
 				driver.clone(),
-				"//div[contains(@class, \"style-seller-info-value\")][last()]/div[last()]".to_string(),
+				"//div[contains(@class, 'seller-info-value)][last()]/div[last()]".to_string(),
 				"//body/div[1]/div/div[3]/div[1]/div/div[2]/div[3]/div/div[2]/div[1]/div/div/div[3]/div[2]/div/div/div/div[1]/div[1]/div[1]/div[3]/div".to_string(),
 			)
 			.await
@@ -184,7 +184,7 @@ impl dyn AdsAd {
 		} else {
 			register_date_arr = match <dyn Crawler>::find_elements(
 				driver.clone(),
-				"//div[contains(@class, \"style-sellerInfoColRedesign\")]/p".to_string(),
+				"//div[contains(@class, 'sellerInfoColRedesign')]/p".to_string(),
 				"//body/div[1]/div/div[3]/div[1]/div/div[2]/div[3]/div/div[2]/div/div/div/div[3]/div[2]/div/div/div/div[1]/div/div[1]/p".to_string(),
 			)
 			.await
@@ -213,11 +213,12 @@ impl dyn AdsAd {
 
 		Ok(register_date)
 	}
-
+	//*[@data-marker='item-view/seller-info']/div/div[2]//a[1]
+	//div[contains(@class, "style-seller-info-favorite-seller-buttons")]/div/div/div[1]/a
 	pub async fn get_seller_ads_count(driver: WebDriver) -> Result<String, WebDriverError> {
 		let seller_ads_count_arr = match <dyn Crawler>::find_elements(
 			driver.clone(),
-			"//div[contains(@class, \"style-seller-info-favorite-seller-buttons\")]/div/div/div[1]/a".to_string(),
+			"//*[@data-marker='item-view/seller-info']/div/div[2]//a[1]".to_string(),
 			"//body/div[1]/div/div[3]/div[1]/div/div[2]/div[3]/div/div[2]/div[1]/div/div/div[3]/div[2]/div/div/div/div[2]/div/div/div/div/a".to_string(),
 		)
 		.await
@@ -247,7 +248,7 @@ impl dyn AdsAd {
 	pub async fn get_seller_closed_ads_count(driver: WebDriver) -> Result<String, WebDriverError> {
 		let seller_ads_count_arr = match <dyn Crawler>::find_elements(
 			driver.clone(),
-			"//div[contains(@class, \"style-seller-info-col\")]/div[last()]".to_string(),
+			"//div[contains(@class, \"seller-info-col\")]/div[last()]".to_string(),
 			"//body/div[1]/div/div[3]/div[1]/div/div[2]/div[3]/div/div[2]/div/div/div/div[3]/div[2]/div/div/div/div[1]/div/div[1]/div[2]".to_string(),
 		)
 		.await
@@ -314,12 +315,13 @@ impl dyn AdsAd {
 
 		Ok(delivery_block)
 	}
-
+	//
+	// //*[@data-marker='item-view/item-description']
 	pub async fn get_description(driver: WebDriver) -> Result<String, WebDriverError> {
 		// Описание
 		let description_blocks_arr = match <dyn Crawler>::find_elements(
 			driver.clone(),
-			"//div[contains(@class, \"style-item-description\")]/p".to_string(),
+			"//*[@data-marker='item-view/item-description']".to_string(),
 			"//body/div[1]/div/div[3]/div[1]/div/div[2]/div[3]/div/div[1]/div[2]/div[3]/div/div/p"
 				.to_string(),
 		)
@@ -349,8 +351,8 @@ impl dyn AdsAd {
 	pub async fn get_address(driver: WebDriver) -> Result<String, WebDriverError> {
 		let address_arr = match <dyn Crawler>::find_elements(
 			driver.clone(),
-			"//span[contains(@class, \"style-item-address__string\")]".to_string(),
-			"//body/div[1]/div/div[3]/div[1]/div/div[2]/div[3]/div/div[1]/div[1]/div[3]/div/div/div[1]/div[1]/div/p[1]/span".to_string(),
+			"//body/div[1]/div/div[4]/div[1]/div/div[2]/div[3]/div/div[1]/div/div[2]/div[1]/div[2]/div/div/div[1]/div[1]/div/p[1]/span".to_string(),
+			"//body/div[1]/div/div[4]/div[1]/div/div[2]/div[3]/div/div[1]/div/div[2]/div[1]/div[2]/div/div/div[1]/div[1]/div/p[1]/span".to_string(),
 		)
 		.await
 		{
@@ -372,7 +374,7 @@ impl dyn AdsAd {
 	pub async fn get_images(driver: WebDriver) -> Result<String, WebDriverError> {
 		let imgs_blocks_exists = match <dyn Crawler>::check_if_block_exists(
 			driver.clone(),
-			"//li[contains(@class, \"images-preview-previewImageWrapper\")]".to_string(),
+			"//*[@data-marker='image-preview/item']".to_string(),
 			"".to_string(),
 		)
 		.await
@@ -387,7 +389,7 @@ impl dyn AdsAd {
 		if imgs_blocks_exists {
 			let imgs_blocks_arr = match <dyn Crawler>::find_elements(
 				driver.clone(),
-				"//li[contains(@class, \"images-preview-previewImageWrapper\")]".to_string(),
+				"//*[@data-marker='image-preview/item']".to_string(),
 				"//body/div[1]/div/div[3]/div[1]/div/div[2]/div[3]/div/div[1]/div[2]/div[1]/div[1]/div/div/ul/li[1]".to_string(),
 			)
 			.await

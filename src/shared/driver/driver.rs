@@ -1,11 +1,16 @@
-use std::env;
 use thirtyfour::{prelude::*, PageLoadStrategy};
+
+use crate::config::CrawlerConfig;
 
 pub trait Driver {}
 
 impl dyn Driver {
 	pub async fn get_driver() -> Result<WebDriver, WebDriverError> {
-		let headless = env::var("HEADLESS_CHROME").expect("HEADLESS_CHROME not set");
+		let config = CrawlerConfig::from_env();
+		Self::get_driver_with_headless(config.unwrap().headless_chrome).await
+	}
+
+	pub async fn get_driver_with_headless(headless: bool) -> Result<WebDriver, WebDriverError> {
 
 		let mut caps = DesiredCapabilities::chrome();
 
@@ -23,7 +28,7 @@ impl dyn Driver {
 		// )?;
 		//
 
-		if headless.parse().unwrap() {
+		if headless {
 			let _ = caps.set_headless();
 		}
 

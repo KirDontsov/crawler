@@ -248,8 +248,13 @@ impl dyn Feed {
 			None => "".to_string(),
 		};
 
-		let seller_name = match seller_name_arr.get(0) {
+		let seller_name_full = match seller_name_arr.get(0) {
 			Some(x) => x.text().await?,
+			None => "".to_string(),
+		};
+
+		let seller_name = match seller_name_full.split("\n").collect::<Vec<&str>>().get(0) {
+			Some(x) => x.to_owned().to_string(),
 			None => "".to_string(),
 		};
 

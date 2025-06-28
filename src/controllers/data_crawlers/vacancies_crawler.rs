@@ -1,43 +1,28 @@
 use chrono::{DateTime, Utc};
 use csv::Writer;
-use std::env;
-use thirtyfour::prelude::*;
 use tokio::time::{sleep, Duration};
 use std::fs;
 
-use crate::api::{AdsAd, Feed, Header, Settings};
-use crate::shared::{Constants, Crawler, Driver, Firewall};
+use crate::api::{AdsAd, Feed};
+use crate::shared::{Constants, Crawler};
+use crate::config::CrawlerConfig;
+use crate::error::CrawlerError;
+use crate::controllers::data_crawlers::common::*;
 
 #[allow(unreachable_code)]
-pub async fn vacancies_crawler() -> WebDriverResult<()> {
-	let search_env = env::var("SEARCH_QUERY").expect("SEARCH_QUERY not set");
-	let search_query = search_env.as_str();
-	let city_env = env::var("CITY_QUERY").expect("CITY_QUERY not set");
-	let city_query = city_env.as_str();
-	let url = env::var("URL_QUERY").expect("URL_QUERY not set");
-	let select_suggest = env::var("SELECT_SUGGEST").expect("SELECT_SUGGEST not set");
-	let fullscreen_mode = env::var("FULLSCREEN_MODE").expect("FULLSCREEN_MODE not set");
-	let ads_to_check_str = env::var("ADS_TO_CHECK").unwrap_or("".to_string());
-	let visit_ads_page = env::var("VISIT_ADS_PAGE").expect("VISIT_ADS_PAGE not set");
-	let report_dir = env::var("REPORT_DIRECTORY").expect("REPORT_DIRECTORY not set");
-	let login_delay = env::var("LOGIN_DELAY").unwrap_or("2".to_string());
-
-	let ads_to_check = if ads_to_check_str != "" {
-		ads_to_check_str.split(" ").collect::<Vec<&str>>()
-	} else {
-		Vec::new()
-	};
+pub async fn vacancies_crawler() -> Result<(), CrawlerError> {
+	let config = CrawlerConfig::from_env()?;
 
 	let utc: DateTime<Utc> = Utc::now() + chrono::Duration::try_hours(3).expect("hours err");
 
-	fs::create_dir_all(format!("./output{}", &report_dir))?;
+	fs::create_dir_all(format!("./output{}", &config.report_directory))?;
 
 	let mut wtr = Writer::from_path(format!(
 		"./output{}/ads_{}_{}_{}.csv",
-		&report_dir,
+		&config.report_directory,
 		utc.format("%d-%m-%Y_%H-%M-%S"),
-		search_query.replace(" ", "_"),
-		city_query.replace(" ", "_")
+		&config.search_query.replace(" ", "_"),
+		&config.city_query.replace(" ", "_")
 	))
 	.expect("no file");
 
@@ -45,63 +30,24 @@ pub async fn vacancies_crawler() -> WebDriverResult<()> {
 
 	wtr.write_record(&headers).expect("write record err");
 
-	let driver = <dyn Driver>::get_driver().await?;
+	let driver = initialize_crawler(&config).await?;
 
-	if fullscreen_mode.parse().unwrap() {
-		driver.maximize_window().await?;
-	}
-
-	driver.goto(url).await?;
-
-	sleep(Duration::from_secs(login_delay.parse::<u64>().unwrap_or(0))).await;
-
-	let _ = <dyn Settings>::click_open_geo_modal_btn(driver.clone()).await?;
-	let _ = <dyn Settings>::click_clear_btn(driver.clone()).await?;
-	let _ = <dyn Settings>::write_region_input(driver.clone(), city_query).await?;
-	let _ = <dyn Settings>::click_region_suggest(driver.clone()).await?;
-	let _ = <dyn Settings>::click_geo_confirm(driver.clone()).await?;
-	let _ = <dyn Settings>::write_search_input(driver.clone(), search_query).await?;
-	let _ = <dyn Settings>::select_search_suggest(
-		driver.clone(),
-		select_suggest.parse().unwrap_or(1),
-		true,
-	)
-	.await?;
-
-	let categories = <dyn Header>::get_categories(driver.clone()).await?;
-	let ads_count = <dyn Header>::get_ads_count(driver.clone()).await?;
+	let (categories, ads_count) = get_search_metadata(&driver).await?;
 
 	println!("Start {}", utc.format("%d-%m-%Y_%H:%M:%S"));
-	println!("City: {}", &city_query);
-	println!("Query: {}", &search_query);
+	println!("City: {}", &config.city_query);
+	println!("Query: {}", &config.search_query);
 	println!("ads_count {}", ads_count.clone());
 
 	let mut position;
 
-	let ads_count_res = if ads_count > 50.0 {
-		(ads_count / 50.0).ceil() as i32
-	} else {
-		ads_count.ceil() as i32
-	};
+	let ads_count_res = calculate_pagination(ads_count);
 
 	'outer: for j in 0..=ads_count_res {
 		// feed
 		//scroll
 
-		let firewall_msg = <dyn Firewall>::get_firewall(driver.clone()).await?;
-
-		if firewall_msg {
-			'firewall: for _ in 0..=3600 {
-				println!("====== firewall ======");
-				sleep(Duration::from_secs(30)).await;
-
-				let firewall_msg_in_loop = <dyn Firewall>::get_firewall(driver.clone()).await?;
-
-				if !firewall_msg_in_loop {
-					break 'firewall;
-				}
-			}
-		}
+		handle_firewall(&driver).await?;
 
 		let blocks = <dyn Feed>::get_feed(driver.clone()).await?;
 
@@ -181,11 +127,11 @@ pub async fn vacancies_crawler() -> WebDriverResult<()> {
 
 			let paid = paid_types.join(", ");
 
-			if !visit_ads_page.parse::<bool>().unwrap() {
+			if !config.visit_ads_page {
 				let mut my_ads = "";
 
-				if ads_to_check.len() > 0 {
-					for ad in &ads_to_check {
+				if config.ads_to_check.len() > 0 {
+					for ad in &config.ads_to_check {
 						if id.contains(ad) {
 							my_ads = "*";
 						};
@@ -205,8 +151,8 @@ pub async fn vacancies_crawler() -> WebDriverResult<()> {
 				wtr.write_record(&[
 					my_ads,
 					format!("{}", utc.format("%d-%m-%Y_%H:%M:%S")).as_str(),
-					city_query,
-					search_query,
+					&config.city_query,
+					&config.search_query,
 					position.to_string().as_str(),
 					"",
 					"",
@@ -244,21 +190,7 @@ pub async fn vacancies_crawler() -> WebDriverResult<()> {
 				driver.switch_to_window(handles[1].clone()).await?;
 				sleep(Duration::from_secs(5)).await;
 
-				let firewall_msg_in_page = <dyn Firewall>::get_firewall(driver.clone()).await?;
-
-				if firewall_msg_in_page {
-					'firewall_in_page: for _ in 0..=3600 {
-						println!("====== firewall ======");
-						sleep(Duration::from_secs(30)).await;
-
-						let firewall_msg_in_loop_in_page =
-							<dyn Firewall>::get_firewall(driver.clone()).await?;
-
-						if !firewall_msg_in_loop_in_page {
-							break 'firewall_in_page;
-						}
-					}
-				}
+				handle_firewall(&driver).await?;
 
 				let (seller_id, seller_name) =
 					<dyn AdsAd>::get_seller_name_arr(driver.clone()).await?;
@@ -282,8 +214,8 @@ pub async fn vacancies_crawler() -> WebDriverResult<()> {
 
 				let mut my_ads = "";
 
-				if ads_to_check.len() > 0 {
-					for ad in &ads_to_check {
+				if config.ads_to_check.len() > 0 {
+					for ad in &config.ads_to_check {
 						if id.contains(ad) {
 							my_ads = "*";
 						};
@@ -303,8 +235,8 @@ pub async fn vacancies_crawler() -> WebDriverResult<()> {
 				wtr.write_record(&[
 					my_ads,
 					format!("{}", utc.format("%d-%m-%Y_%H:%M:%S")).as_str(),
-					city_query,
-					search_query,
+					&config.city_query,
+					&config.search_query,
 					position.to_string().as_str(),
 					views.as_str(),
 					views_today.as_str(),
